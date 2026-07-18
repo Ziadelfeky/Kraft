@@ -85,6 +85,24 @@
   }
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){.spinner{animation-duration:2s}}
+  .renew{
+    margin-top:26px; padding:20px 18px 16px; border-radius:14px;
+    background:linear-gradient(180deg, rgba(212,233,108,.05), rgba(212,233,108,.015));
+    border:1px solid rgba(212,233,108,.22); text-align:center;
+  }
+  .renew-line{width:26px;height:2px;background:var(--gold);margin:0 auto 14px;border-radius:2px}
+  .renew-title{font-weight:600;font-size:.98rem;margin-bottom:4px}
+  .renew-body{color:var(--muted);font-size:.84rem;margin-bottom:16px;line-height:1.6}
+  .renew-pay{
+    display:flex;flex-direction:column;gap:2px;align-items:center;width:100%;
+    padding:13px;border-radius:12px;cursor:pointer;
+    background:var(--bg);border:1px solid rgba(212,233,108,.35);
+    font-family:inherit;transition:border-color .2s;
+  }
+  .renew-pay:active{border-color:var(--gold)}
+  .renew-pay-label{color:var(--gold);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+  .renew-pay-number{color:var(--text);font-size:1.35rem;letter-spacing:.14em;font-weight:600;direction:ltr}
+  .renew-hint{color:var(--muted);font-size:.72rem;margin-top:10px;min-height:1em}
   .hidden{display:none}
   footer{margin-top:36px;color:var(--muted);font-size:.7rem;letter-spacing:.15em;font-family:'Poppins',sans-serif}
 </style>
@@ -145,6 +163,17 @@
     </div>
     <p class="status-ok hidden" id="doneOk"></p>
     <div class="status-debt hidden" id="doneDebt"></div>
+
+    <div class="renew hidden" id="renewCard">
+      <div class="renew-line"></div>
+      <p class="renew-title" id="renewTitle"></p>
+      <p class="renew-body" id="renewBody"></p>
+      <button class="renew-pay" id="renewPay">
+        <span class="renew-pay-label">InstaPay</span>
+        <span class="renew-pay-number">01501545118</span>
+      </button>
+      <p class="renew-hint" id="renewHint"></p>
+    </div>
   </div>
 
   <div class="spinner hidden" id="spin"></div>
@@ -187,6 +216,13 @@ const T = {
     regExists:'الرقم ده مسجّل بالفعل',
     regInvalid:'اكتب الاسم بالكامل ورقم صحيح',
     pendingMsg:'تسجيلك واصل ✓ — في انتظار التفعيل من فريق KRAFT',
+    renewLast:'دي آخر حصة في باقتك',
+    renewOne:'فاضل لك حصة واحدة',
+    renewDone:'باقتك اكتملت — حضور النهارده متسجّل',
+    renewExpired:'انتهت مدة باقتك (30 يوم) — حضور النهارده متسجّل',
+    renewBody:'جدد باقتك عن طريق InstaPay أو كاش في الاستقبال',
+    renewCopy:'اضغط على الرقم للنسخ',
+    renewCopied:'تم نسخ الرقم ✓',
   },
   en: {
     title:'Check-in',
@@ -215,6 +251,13 @@ const T = {
     regExists:'This number is already registered',
     regInvalid:'Enter your full name and a valid number',
     pendingMsg:'Registration received ✓ — awaiting activation by the KRAFT team',
+    renewLast:'This was the last session in your package',
+    renewOne:'One session left in your package',
+    renewDone:'Your package is complete — today is logged',
+    renewExpired:'Your package period has ended (30 days) — today is logged',
+    renewBody:'Renew via InstaPay, or cash at the front desk',
+    renewCopy:'Tap the number to copy',
+    renewCopied:'Number copied ✓',
   }
 };
 
@@ -308,15 +351,23 @@ $('btnCheckin').onclick = async () => {
       return;
     }
     $('doneName').textContent = t('hello')(data.first_name);
+    let renewKey = null;
     if (data.debt) {
       show($('doneCounterWrap'), false);
-      $('doneDebt').textContent = t('debtMsg');
-      show($('doneDebt'), true);
+      renewKey = data.expired ? 'renewExpired' : 'renewDone';
     } else {
       $('doneCounter').textContent = data.remaining;
       if (data.remaining <= 2) $('doneCounter').classList.add('low');
       $('doneOk').textContent = t('checkedOk');
       show($('doneOk'), true);
+      if (data.remaining === 0) renewKey = 'renewLast';
+      else if (data.remaining === 1) renewKey = 'renewOne';
+    }
+    if (renewKey) {
+      $('renewTitle').textContent = t(renewKey);
+      $('renewBody').textContent = t('renewBody');
+      $('renewHint').textContent = t('renewCopy');
+      show($('renewCard'), true);
     }
     show($('stepConfirm'), false);
     show($('stepDone'), true);
@@ -355,6 +406,14 @@ $('btnRegSend').onclick = async () => {
   } catch(e) {
     $('msgReg').textContent = t('connErr'); $('msgReg').className='msg err';
   } finally { busy(false,'btnRegSend'); }
+};
+
+$('renewPay').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText('01501545118');
+    $('renewHint').textContent = t('renewCopied');
+    setTimeout(()=>{ $('renewHint').textContent = t('renewCopy'); }, 2500);
+  } catch(e) {}
 };
 
 function busy(on, btnId){

@@ -315,6 +315,8 @@ function openPkg(clientId){
   const c = clients.find(x=>x.id===clientId);
   $('pkgTitle').textContent = 'New package — ' + (c?c.full_name.split(' ')[0]:'');
   $('pkgErr').textContent='';
+  const d = new Date(); d.setDate(d.getDate()+30);
+  $('pExpiry').value = d.toISOString().slice(0,10); // 30-day validity, editable
   dlgPkg.showModal();
 }
 $('btnSavePkg').onclick = async ()=>{
