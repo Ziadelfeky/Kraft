@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#131311">
+<title>KRAFT — Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Lora:wght@500;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#131311; --panel:#1c1c19; --line:#2a2a26;
+    --gold:#b8966a; --gold-soft:rgba(184,150,106,.14);
+    --text:#eae7e1; --muted:#8b877e;
+    --ok:#7fae7a; --warn:#c96f5e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Cairo','Poppins',sans-serif;
+    min-height:100dvh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:24px;
+  }
+  html[lang=en] body{font-family:'Poppins','Cairo',sans-serif}
+  .lang-toggle{
+    position:fixed; top:16px; inset-inline-end:16px;
+    display:flex; border:1px solid var(--line); border-radius:20px; overflow:hidden;
+  }
+  .lang-toggle button{
+    background:transparent; border:none; color:var(--muted);
+    font-family:'Poppins',sans-serif; font-size:.75rem; letter-spacing:.05em;
+    padding:6px 14px; cursor:pointer;
+  }
+  .lang-toggle button.on{background:var(--gold); color:#131311; font-weight:600}
+  .wordmark{
+    font-family:'Lora',serif; font-weight:600; letter-spacing:.35em;
+    color:var(--gold); font-size:1.35rem; text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .tagline{color:var(--muted); font-size:.78rem; letter-spacing:.08em; margin-bottom:44px; text-align:center}
+  .card{
+    width:100%; max-width:380px; background:var(--panel);
+    border:1px solid var(--line); border-radius:18px; padding:32px 26px;
+    text-align:center;
+  }
+  h1{font-size:1.15rem; font-weight:600; margin-bottom:6px}
+  .sub{color:var(--muted); font-size:.85rem; margin-bottom:26px}
+  input[type=tel]{
+    width:100%; padding:15px 16px; border-radius:12px;
+    border:1px solid var(--line); background:var(--bg); color:var(--text);
+    font-family:inherit; font-size:1.15rem; text-align:center;
+    letter-spacing:.12em; direction:ltr; outline:none;
+    transition:border-color .2s;
+  }
+  input[type=tel]:focus{border-color:var(--gold)}
+  button.action{
+    width:100%; margin-top:16px; padding:15px;
+    border:none; border-radius:12px; cursor:pointer;
+    background:var(--gold); color:#131311;
+    font-family:inherit; font-size:1.02rem; font-weight:700;
+    transition:opacity .2s;
+  }
+  button.action:disabled{opacity:.45; cursor:default}
+  .ghost{background:transparent !important; border:1px solid var(--line) !important; color:var(--muted) !important; font-weight:400 !important}
+  .msg{margin-top:18px; font-size:.9rem; min-height:1.4em}
+  .msg.err{color:var(--warn)}
+  .counter{
+    font-family:'Lora',serif; font-size:5.2rem; line-height:1;
+    color:var(--gold); margin:18px 0 4px;
+  }
+  .counter-label{color:var(--muted); font-size:.85rem; letter-spacing:.05em}
+  .greet{font-size:1.25rem; font-weight:600; margin-bottom:2px}
+  .status-ok{color:var(--ok); font-size:.9rem; margin-top:20px}
+  .status-debt{
+    margin-top:20px; padding:12px 14px; border-radius:10px;
+    background:rgba(201,111,94,.12); border:1px solid rgba(201,111,94,.35);
+    color:var(--warn); font-size:.86rem; line-height:1.6;
+  }
+  .low{color:var(--warn)}
+  .spinner{
+    width:26px;height:26px;border:3px solid var(--line);
+    border-top-color:var(--gold);border-radius:50%;
+    margin:14px auto 0;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.spinner{animation-duration:2s}}
+  .hidden{display:none}
+  footer{margin-top:36px;color:var(--muted);font-size:.7rem;letter-spacing:.15em;font-family:'Poppins',sans-serif}
+</style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <button id="langAr" class="on">عربي</button>
+  <button id="langEn">EN</button>
+</div>
+
+<div class="wordmark">KRAFT</div>
+<div class="tagline">Fix the root cause. Build the body. Perform for life.</div>
+
+<div class="card">
+
+  <!-- STEP 1: phone -->
+  <div id="stepPhone">
+    <h1 data-i18n="title"></h1>
+    <p class="sub" data-i18n="subtitle"></p>
+    <input type="tel" id="phone" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11" autocomplete="tel">
+    <button class="action" id="btnLookup" data-i18n="continue"></button>
+    <p class="msg" id="msgPhone"></p>
+  </div>
+
+  <!-- STEP 2: confirm -->
+  <div id="stepConfirm" class="hidden">
+    <p class="greet" id="confirmName"></p>
+    <p class="sub" id="confirmInfo"></p>
+    <button class="action" id="btnCheckin" data-i18n="confirm"></button>
+    <button class="action ghost" id="btnBack" data-i18n="notMe"></button>
+    <p class="msg" id="msgConfirm"></p>
+  </div>
+
+  <!-- STEP 3: done -->
+  <div id="stepDone" class="hidden">
+    <p class="greet" id="doneName"></p>
+    <div id="doneCounterWrap">
+      <div class="counter" id="doneCounter">0</div>
+      <div class="counter-label" data-i18n="remainingLabel"></div>
+    </div>
+    <p class="status-ok hidden" id="doneOk"></p>
+    <div class="status-debt hidden" id="doneDebt"></div>
+  </div>
+
+  <div class="spinner hidden" id="spin"></div>
+</div>
+
+<footer>KRAFT FITNESS · GANAKLIS, ALEXANDRIA</footer>
+
+<script>
+/* ====== CONFIG — fill these two values from Supabase → Settings → API ====== */
+const SUPABASE_URL = "https://gndbfxwjcumkftbultkt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_e2x7PPQQ4iO71ZoyyZk_6A_b_FLKIdu";
+/* =========================================================================== */
+
+/* ---------- translations ---------- */
+const T = {
+  ar: {
+    title:'تسجيل الحضور',
+    subtitle:'اكتب رقم موبايلك المسجّل عندنا',
+    continue:'متابعة',
+    confirm:'تأكيد الحضور',
+    notMe:'مش أنا — رجوع',
+    remainingLabel:'حصص متبقية في باقتك',
+    hello:n=>'أهلاً، '+n,
+    remainingInfo:r=>'باقتك فيها '+r+' حصص متبقية',
+    expiredInfo:'باقتك منتهية — هنسجّل الحضور وتقدر تجدد مع الكابتن',
+    alreadyToday:'إنت مسجّل حضورك النهارده بالفعل ✓',
+    checkedOk:'✓ تم تسجيل حضورك — تمرين موفق',
+    debtMsg:'باقتك خلصت — سجّلنا حضورك النهارده، وكلّم كابتن زياد لتجديد الباقة.',
+    invalidPhone:'اكتب رقم صحيح مكوّن من 11 رقم',
+    notFound:'الرقم مش مسجّل — كلّم كابتن زياد',
+    connErr:'حصلت مشكلة في الاتصال — جرّب تاني',
+    genErr:'حصلت مشكلة — كلّم الكابتن',
+  },
+  en: {
+    title:'Check-in',
+    subtitle:'Enter your registered phone number',
+    continue:'Continue',
+    confirm:'Confirm check-in',
+    notMe:'Not me — back',
+    remainingLabel:'Sessions left in your package',
+    hello:n=>'Hello, '+n,
+    remainingInfo:r=>'Your package has '+r+' sessions left',
+    expiredInfo:'Your package has ended — we will log today and you can renew with Coach Ziad',
+    alreadyToday:'You are already checked in today ✓',
+    checkedOk:'✓ Checked in — have a great session',
+    debtMsg:'Your package is finished — today is logged. Please speak to Coach Ziad to renew.',
+    invalidPhone:'Enter a valid 11-digit number',
+    notFound:'Number not registered — please speak to Coach Ziad',
+    connErr:'Connection problem — try again',
+    genErr:'Something went wrong — please tell the coach',
+  }
+};
+
+let lang = localStorage.getItem('kraft_lang') || 'ar';
+const t = key => T[lang][key];
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang==='ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = T[lang][el.dataset.i18n];
+  });
+  document.getElementById('langAr').classList.toggle('on', lang==='ar');
+  document.getElementById('langEn').classList.toggle('on', lang==='en');
+}
+document.getElementById('langAr').onclick = ()=>{ lang='ar'; localStorage.setItem('kraft_lang','ar'); applyLang(); };
+document.getElementById('langEn').onclick = ()=>{ lang='en'; localStorage.setItem('kraft_lang','en'); applyLang(); };
+applyLang();
+
+/* ---------- app ---------- */
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const show = (el,on=true)=>el.classList.toggle('hidden',!on);
+let currentPhone = "";
+
+const saved = localStorage.getItem('kraft_phone');
+if (saved) $('phone').value = saved;
+
+$('btnLookup').onclick = async () => {
+  const phone = $('phone').value.replace(/\D/g,'');
+  $('msgPhone').textContent = '';
+  if (!/^01\d{9}$/.test(phone)) {
+    $('msgPhone').textContent = t('invalidPhone');
+    $('msgPhone').className = 'msg err';
+    return;
+  }
+  busy(true, 'btnLookup');
+  try {
+    const { data, error } = await db.rpc('kraft_lookup', { p_phone: phone });
+    if (error) throw error;
+    if (!data.found) {
+      $('msgPhone').textContent = t('notFound');
+      $('msgPhone').className = 'msg err';
+      return;
+    }
+    currentPhone = phone;
+    localStorage.setItem('kraft_phone', phone);
+    $('confirmName').textContent = t('hello')(data.first_name);
+    if (data.already_today) {
+      $('confirmInfo').textContent = t('alreadyToday');
+      $('btnCheckin').classList.add('hidden');
+    } else {
+      $('confirmInfo').textContent =
+        data.remaining > 0 ? t('remainingInfo')(data.remaining) : t('expiredInfo');
+      $('btnCheckin').classList.remove('hidden');
+    }
+    show($('stepPhone'), false);
+    show($('stepConfirm'), true);
+  } catch(e) {
+    $('msgPhone').textContent = t('connErr');
+    $('msgPhone').className = 'msg err';
+  } finally { busy(false, 'btnLookup'); }
+};
+
+$('btnBack').onclick = () => {
+  localStorage.removeItem('kraft_phone');
+  $('phone').value = '';
+  show($('stepConfirm'), false);
+  show($('stepPhone'), true);
+};
+
+$('btnCheckin').onclick = async () => {
+  busy(true, 'btnCheckin');
+  try {
+    const { data, error } = await db.rpc('kraft_checkin', { p_phone: currentPhone });
+    if (error) throw error;
+    if (!data.ok) {
+      $('msgConfirm').textContent =
+        data.reason === 'already_today' ? t('alreadyToday') : t('genErr');
+      $('msgConfirm').className = 'msg err';
+      return;
+    }
+    $('doneName').textContent = t('hello')(data.first_name);
+    if (data.debt) {
+      show($('doneCounterWrap'), false);
+      $('doneDebt').textContent = t('debtMsg');
+      show($('doneDebt'), true);
+    } else {
+      $('doneCounter').textContent = data.remaining;
+      if (data.remaining <= 2) $('doneCounter').classList.add('low');
+      $('doneOk').textContent = t('checkedOk');
+      show($('doneOk'), true);
+    }
+    show($('stepConfirm'), false);
+    show($('stepDone'), true);
+  } catch(e) {
+    $('msgConfirm').textContent = t('connErr');
+    $('msgConfirm').className = 'msg err';
+  } finally { busy(false, 'btnCheckin'); }
+};
+
+function busy(on, btnId){
+  show($('spin'), on);
+  $(btnId).disabled = on;
+}
+</script>
+</body>
+</html>
