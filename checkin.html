@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#131311">
+<meta name="theme-color" content="#0a0a0b">
 <title>KRAFT — Check-in</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Lora:wght@500;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --bg:#131311; --panel:#1c1c19; --line:#2a2a26;
-    --gold:#b8966a; --gold-soft:rgba(184,150,106,.14);
-    --text:#eae7e1; --muted:#8b877e;
+    --bg:#0a0a0b; --panel:#131316; --line:#232329;
+    --gold:#d4e96c; --gold-soft:rgba(212,233,108,.10);
+    --text:#f2f2f0; --muted:#87878f;
     --ok:#7fae7a; --warn:#c96f5e;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   body{
-    background:var(--bg); color:var(--text);
+    background:radial-gradient(1100px 520px at 50% -8%, #16161a 0%, var(--bg) 60%) fixed, var(--bg); color:var(--text);
     font-family:'Cairo','Poppins',sans-serif;
     min-height:100dvh; display:flex; flex-direction:column;
     align-items:center; justify-content:center; padding:24px;
@@ -32,9 +32,9 @@
     font-family:'Poppins',sans-serif; font-size:.75rem; letter-spacing:.05em;
     padding:6px 14px; cursor:pointer;
   }
-  .lang-toggle button.on{background:var(--gold); color:#131311; font-weight:600}
+  .lang-toggle button.on{background:var(--gold); color:#0a0a0b; font-weight:600}
   .wordmark{
-    font-family:'Lora',serif; font-weight:600; letter-spacing:.35em;
+    font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em; font-weight:600; letter-spacing:.35em;
     color:var(--gold); font-size:1.35rem; text-transform:uppercase;
     margin-bottom:6px;
   }
@@ -57,7 +57,7 @@
   button.action{
     width:100%; margin-top:16px; padding:15px;
     border:none; border-radius:12px; cursor:pointer;
-    background:var(--gold); color:#131311;
+    background:var(--gold); color:#0a0a0b;
     font-family:inherit; font-size:1.02rem; font-weight:700;
     transition:opacity .2s;
   }
@@ -66,7 +66,7 @@
   .msg{margin-top:18px; font-size:.9rem; min-height:1.4em}
   .msg.err{color:var(--warn)}
   .counter{
-    font-family:'Lora',serif; font-size:5.2rem; line-height:1;
+    font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em; font-size:5.2rem; line-height:1;
     color:var(--gold); margin:18px 0 4px;
   }
   .counter-label{color:var(--muted); font-size:.85rem; letter-spacing:.05em}
@@ -96,7 +96,7 @@
   <button id="langEn">EN</button>
 </div>
 
-<div class="wordmark">KRAFT</div>
+<img src="./logo.png" alt="KRAFT" style="height:34px;margin-bottom:10px">
 <div class="tagline">Fix the root cause. Build the body. Perform for life.</div>
 
 <div class="card">
@@ -107,6 +107,7 @@
     <p class="sub" data-i18n="subtitle"></p>
     <input type="tel" id="phone" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11" autocomplete="tel">
     <button class="action" id="btnLookup" data-i18n="continue"></button>
+    <button class="action ghost hidden" id="btnRegister" data-i18n="registerBtn"></button>
     <p class="msg" id="msgPhone"></p>
   </div>
 
@@ -117,6 +118,22 @@
     <button class="action" id="btnCheckin" data-i18n="confirm"></button>
     <button class="action ghost" id="btnBack" data-i18n="notMe"></button>
     <p class="msg" id="msgConfirm"></p>
+  </div>
+
+  <!-- STEP R: register -->
+  <div id="stepReg" class="hidden">
+    <h1 data-i18n="regTitle"></h1>
+    <p class="sub" data-i18n="regSub"></p>
+    <input type="text" id="regName" data-i18n-ph="namePh" autocomplete="name" style="width:100%;padding:15px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:1.05rem;text-align:center;outline:none;margin-bottom:4px">
+    <button class="action" id="btnRegSend" data-i18n="regSend"></button>
+    <button class="action ghost" id="btnRegBack" data-i18n="notMe"></button>
+    <p class="msg" id="msgReg"></p>
+  </div>
+
+  <!-- STEP R2: registered -->
+  <div id="stepRegDone" class="hidden">
+    <p class="greet" data-i18n="regDone"></p>
+    <p class="sub" data-i18n="regDoneSub" style="margin-top:10px;line-height:1.7"></p>
   </div>
 
   <!-- STEP 3: done -->
@@ -152,14 +169,24 @@ const T = {
     remainingLabel:'حصص متبقية في باقتك',
     hello:n=>'أهلاً، '+n,
     remainingInfo:r=>'باقتك فيها '+r+' حصص متبقية',
-    expiredInfo:'باقتك منتهية — هنسجّل الحضور وتقدر تجدد مع الكابتن',
+    expiredInfo:'باقتك منتهية — هنسجّل حضورك النهارده وتقدر تجدد مع فريق KRAFT أو عن طريق InstaPay',
     alreadyToday:'إنت مسجّل حضورك النهارده بالفعل ✓',
     checkedOk:'✓ تم تسجيل حضورك — تمرين موفق',
-    debtMsg:'باقتك خلصت — سجّلنا حضورك النهارده، وكلّم كابتن زياد لتجديد الباقة.',
+    debtMsg:'باقتك اكتملت — حضور النهارده متسجّل. للتجديد: فريق KRAFT في الجيم أو InstaPay.',
     invalidPhone:'اكتب رقم صحيح مكوّن من 11 رقم',
-    notFound:'الرقم مش مسجّل — كلّم كابتن زياد',
+    notFound:'الرقم مش مسجّل عندنا',
     connErr:'حصلت مشكلة في الاتصال — جرّب تاني',
-    genErr:'حصلت مشكلة — كلّم الكابتن',
+    genErr:'حصلت مشكلة — كلّم فريق KRAFT',
+    registerBtn:'أول مرة؟ سجّل معانا',
+    regTitle:'تسجيل جديد',
+    regSub:'اكتب اسمك بالكامل وهيتم تفعيل حسابك من فريق KRAFT',
+    namePh:'الاسم بالكامل',
+    regSend:'إرسال التسجيل',
+    regDone:'تم استلام تسجيلك ✓',
+    regDoneSub:'فريق KRAFT هيفعّل حسابك ويظبط باقتك — أهلاً بيك في KRAFT',
+    regExists:'الرقم ده مسجّل بالفعل',
+    regInvalid:'اكتب الاسم بالكامل ورقم صحيح',
+    pendingMsg:'تسجيلك واصل ✓ — في انتظار التفعيل من فريق KRAFT',
   },
   en: {
     title:'Check-in',
@@ -170,14 +197,24 @@ const T = {
     remainingLabel:'Sessions left in your package',
     hello:n=>'Hello, '+n,
     remainingInfo:r=>'Your package has '+r+' sessions left',
-    expiredInfo:'Your package has ended — we will log today and you can renew with Coach Ziad',
+    expiredInfo:'Your package has ended — today will be logged. Renew with the KRAFT team or via InstaPay.',
     alreadyToday:'You are already checked in today ✓',
     checkedOk:'✓ Checked in — have a great session',
-    debtMsg:'Your package is finished — today is logged. Please speak to Coach Ziad to renew.',
+    debtMsg:'Your package is complete — today is logged. To renew: the KRAFT team at the gym, or InstaPay.',
     invalidPhone:'Enter a valid 11-digit number',
-    notFound:'Number not registered — please speak to Coach Ziad',
+    notFound:'This number is not registered yet',
     connErr:'Connection problem — try again',
-    genErr:'Something went wrong — please tell the coach',
+    genErr:'Something went wrong — please tell the KRAFT team',
+    registerBtn:'First time? Register',
+    regTitle:'New registration',
+    regSub:'Enter your full name — the KRAFT team will activate your account',
+    namePh:'Full name',
+    regSend:'Send registration',
+    regDone:'Registration received ✓',
+    regDoneSub:'The KRAFT team will activate your account and set up your package — welcome to KRAFT',
+    regExists:'This number is already registered',
+    regInvalid:'Enter your full name and a valid number',
+    pendingMsg:'Registration received ✓ — awaiting activation by the KRAFT team',
   }
 };
 
@@ -189,6 +226,9 @@ function applyLang(){
   document.documentElement.dir = (lang==='ar') ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     el.textContent = T[lang][el.dataset.i18n];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    el.placeholder = T[lang][el.dataset.i18nPh];
   });
   document.getElementById('langAr').classList.toggle('on', lang==='ar');
   document.getElementById('langEn').classList.toggle('on', lang==='en');
@@ -219,8 +259,15 @@ $('btnLookup').onclick = async () => {
     const { data, error } = await db.rpc('kraft_lookup', { p_phone: phone });
     if (error) throw error;
     if (!data.found) {
+      currentPhone = phone;
       $('msgPhone').textContent = t('notFound');
       $('msgPhone').className = 'msg err';
+      $('btnRegister').classList.remove('hidden');
+      return;
+    }
+    if (data.pending) {
+      $('msgPhone').textContent = t('pendingMsg');
+      $('msgPhone').className = 'msg';
       return;
     }
     currentPhone = phone;
@@ -277,6 +324,37 @@ $('btnCheckin').onclick = async () => {
     $('msgConfirm').textContent = t('connErr');
     $('msgConfirm').className = 'msg err';
   } finally { busy(false, 'btnCheckin'); }
+};
+
+$('btnRegister').onclick = () => {
+  show($('stepPhone'), false);
+  show($('stepReg'), true);
+  $('msgReg').textContent='';
+};
+$('btnRegBack').onclick = () => {
+  show($('stepReg'), false);
+  show($('stepPhone'), true);
+  $('btnRegister').classList.add('hidden');
+  $('msgPhone').textContent='';
+};
+$('btnRegSend').onclick = async () => {
+  const name = $('regName').value.trim();
+  if (name.length < 3) { $('msgReg').textContent = t('regInvalid'); $('msgReg').className='msg err'; return; }
+  busy(true,'btnRegSend');
+  try {
+    const { data, error } = await db.rpc('kraft_register', { p_name: name, p_phone: currentPhone });
+    if (error) throw error;
+    if (!data.ok) {
+      $('msgReg').textContent = data.reason==='exists' ? t('regExists') : t('regInvalid');
+      $('msgReg').className='msg err';
+      return;
+    }
+    localStorage.setItem('kraft_phone', currentPhone);
+    show($('stepReg'), false);
+    show($('stepRegDone'), true);
+  } catch(e) {
+    $('msgReg').textContent = t('connErr'); $('msgReg').className='msg err';
+  } finally { busy(false,'btnRegSend'); }
 };
 
 function busy(on, btnId){
