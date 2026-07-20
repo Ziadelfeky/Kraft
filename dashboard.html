@@ -107,7 +107,10 @@
       </div>
     </div>
 
-    <h2>Today</h2>
+    <div class="toolbar">
+      <h2 id="attTitle">Attendance — Today</h2>
+      <input type="date" id="attDate" style="max-width:170px;margin:0">
+    </div>
     <div class="card" id="todayCard">
       <table>
         <thead><tr><th>Client</th><th>Time</th><th class="hide-sm">Method</th><th></th><th></th></tr></thead>
@@ -197,6 +200,7 @@ $('btnLogout').onclick = async ()=>{ await db.auth.signOut(); location.reload();
 function enter(){
   $('viewLogin').classList.add('hidden');
   $('viewDash').classList.remove('hidden');
+  $('attDate').value = new Date().toISOString().slice(0,10);
   loadAll();
   setInterval(loadAll, 30000); // refresh every 30s during sessions
 }
@@ -227,14 +231,19 @@ const timeFmt = d => d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digi
 /* ---------- render ---------- */
 function render(){
   const todayStr = new Date().toDateString();
-  const today = attendance.filter(a=> new Date(a.checked_in_at).toDateString()===todayStr);
+  const selVal = $('attDate').value;
+  const selDate = selVal ? new Date(selVal+'T12:00:00') : new Date();
+  const selStr = selDate.toDateString();
+  const isToday = selStr === todayStr;
+  $('attTitle').textContent = 'Attendance — ' + (isToday ? 'Today' : selDate.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}));
+  const today = attendance.filter(a=> new Date(a.checked_in_at).toDateString()===selStr);
 
-  $('statToday').textContent = today.length;
+  $('statToday').textContent = attendance.filter(a=> new Date(a.checked_in_at).toDateString()===todayStr).length;
   $('statDebt').textContent  = attendance.filter(a=>a.is_debt).length;
 
   // today table
   const tb = $('todayBody'); tb.innerHTML='';
-  if (!today.length) tb.innerHTML='<tr><td colspan="5" class="muted">No check-ins yet today.</td></tr>';
+  if (!today.length) tb.innerHTML='<tr><td colspan="5" class="muted">No check-ins on this day.</td></tr>';
   today.forEach(a=>{
     const c = clients.find(x=>x.id===a.client_id);
     tb.insertAdjacentHTML('beforeend', `<tr>
@@ -296,6 +305,7 @@ function render(){
   $('statLow').textContent = lowCount;
 }
 $('search').oninput = render;
+$('attDate').onchange = render;
 
 /* ---------- add client ---------- */
 $('btnAddClient').onclick = ()=>{ $('clientErr').textContent=''; dlgClient.showModal(); };
