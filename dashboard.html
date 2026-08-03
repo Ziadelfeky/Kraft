@@ -341,6 +341,15 @@ $('btnSavePkg').onclick = async ()=>{
   if (method!=='unpaid' && price>0){
     await db.from('kraft_payments').insert({ client_id:pkgClientId, package_id:pkg.id, amount_egp:price, method });
   }
+  // settle outstanding debt sessions into this new package
+  const debtRows = attendance.filter(a=>a.client_id===pkgClientId && a.is_debt);
+  if (debtRows.length){
+    const n = Math.min(debtRows.length, sessions);
+    if (confirm('This client has ' + debtRows.length + ' debt session(s). Deduct ' + n + ' from the new package to settle them?')){
+      const ids = debtRows.slice(0, n).map(a=>a.id);
+      await db.from('kraft_attendance').update({ package_id: pkg.id, is_debt: false }).in('id', ids);
+    }
+  }
   $('pSessions').value=''; $('pPrice').value=''; $('pExpiry').value='';
   dlgPkg.close(); loadAll();
 };
