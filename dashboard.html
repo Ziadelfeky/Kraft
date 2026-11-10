@@ -495,7 +495,7 @@ $('btnSaveClient').onclick = async ()=>{
   const phone = $('cPhone').value.replace(/\D/g,'');
   if (!name || !/^01\d{9}$/.test(phone)) { $('clientErr').textContent='Full name and a valid 11-digit phone are required.'; return; }
   const { data, error } = await db.from('kraft_clients').insert({ full_name:name, phone, client_type:$('cType').value, status:'active' }).select().single();
-  if (error){ $('clientErr').textContent = error.code==='23505' ? 'This phone is already registered.' : 'Could not save.'; return; }
+  if (error){ $('clientErr').textContent = error.code==='23505' ? 'This phone is already registered.' : 'Could not save: ' + error.message; return; }
   $('cName').value=''; $('cPhone').value='';
   newClientId = data.id;
   $('cDoneName').textContent = data.full_name;
