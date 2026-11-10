@@ -2,80 +2,150 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a0a0b">
-<title>KRAFT — Coach Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0a">
+<meta name="robots" content="noindex, nofollow">
+<title>KRAFT — Coach</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --bg:#0a0a0b; --panel:#131316; --panel2:#17171b; --line:#232329;
-    --gold:#d4e96c; --gold-soft:rgba(212,233,108,.10);
-    --text:#f2f2f0; --muted:#87878f;
-    --ok:#7fae7a; --warn:#c96f5e; --warn-soft:rgba(201,111,94,.12);
+    --bg:#0c0b0a; --panel:#161411; --panel2:#1c1915; --line:rgba(242,237,228,.10); --line2:rgba(242,237,228,.18);
+    --gold:#cfb27c; --gold-soft:rgba(207,178,124,.10); --gold-line:rgba(207,178,124,.35);
+    --text:#f2ede4; --muted:#b0a99c; --soft:#938c7f;
+    --ok:#9cc49a; --warn:#e3967f; --warn-soft:rgba(227,150,127,.10); --warn-line:rgba(227,150,127,.35);
+    --serif:'Lora',Georgia,serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:radial-gradient(1100px 520px at 50% -8%, #16161a 0%, var(--bg) 60%) fixed, var(--bg);color:var(--text);font-family:'Poppins',sans-serif;font-size:14px;min-height:100dvh}
-  .wordmark{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em;font-weight:600;letter-spacing:.35em;color:var(--gold);text-transform:uppercase}
-  header{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
-  header .wordmark{font-size:1.05rem}
-  header button{background:none;border:1px solid var(--line);color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:.78rem}
-  main{max-width:960px;margin:0 auto;padding:22px 16px 60px}
-  h2{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em;font-weight:500;font-size:1.05rem;color:var(--gold);margin:28px 0 12px;letter-spacing:.04em}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  body{background:radial-gradient(1000px 480px at 50% -12%, rgba(207,178,124,.07), transparent 65%), var(--bg);color:var(--text);font-family:'Poppins',sans-serif;font-size:14px;font-weight:300;min-height:100dvh;-webkit-font-smoothing:antialiased}
+  button,input,select{font-family:inherit}
+  .hidden{display:none !important}
+  .muted{color:var(--muted)} .soft{color:var(--soft)}
+  .label{font-size:.68rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+
   /* login */
-  .login-wrap{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-  .login-wrap .wordmark{font-size:1.4rem;margin-bottom:34px}
-  .login-card{width:100%;max-width:340px}
-  input,select{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:.92rem;outline:none;margin-bottom:12px}
+  .login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+  .login img{height:30px;margin-bottom:10px}
+  .login .label{margin-bottom:30px}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px}
+  .login .card{width:100%;max-width:350px}
+  input,select{width:100%;padding:12px 14px;border-radius:11px;border:1px solid var(--line2);background:var(--bg);color:var(--text);font-size:.95rem;outline:none;margin-bottom:10px}
   input:focus,select:focus{border-color:var(--gold)}
-  .btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--gold);color:#0a0a0b;font-family:inherit;font-weight:600;font-size:.95rem;cursor:pointer}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:13px;border:none;border-radius:11px;background:var(--gold);color:#14110d;font-weight:600;font-size:.95rem;cursor:pointer;text-decoration:none}
   .btn:disabled{opacity:.5}
-  .btn-sm{width:auto;padding:7px 14px;font-size:.78rem}
-  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .btn-sm{width:auto;padding:8px 13px;font-size:.78rem;border-radius:9px}
+  .btn-ghost{background:transparent;border:1px solid var(--line2);color:var(--muted)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-wa{background:transparent;border:1px solid var(--gold-line);color:var(--gold)}
   .err{color:var(--warn);font-size:.85rem;min-height:1.2em;margin-top:8px}
-  /* stats */
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
-  .stat .n{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em;font-size:2rem;color:var(--gold);line-height:1.1}
-  .stat .l{color:var(--muted);font-size:.72rem;letter-spacing:.06em;margin-top:4px}
-  /* table */
-  table{width:100%;border-collapse:collapse}
-  th{color:var(--muted);font-weight:400;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-  tr:last-child td{border-bottom:none}
-  .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;letter-spacing:.03em}
-  .tag-debt{background:var(--warn-soft);color:var(--warn);border:1px solid rgba(201,111,94,.35)}
-  .tag-low{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(212,233,108,.35)}
-  .tag-away{background:transparent;color:var(--muted);border:1px solid var(--line)}
-  .tag-home{background:transparent;color:var(--muted);border:1px solid var(--line)}
-  .remain{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em;font-size:1.05rem;color:var(--gold)}
-  .remain.zero{color:var(--warn)}
-  .muted{color:var(--muted);font-size:.8rem}
-  .row-actions{display:flex;gap:6px;flex-wrap:wrap}
-  /* forms grid */
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-  .form-grid .full{grid-column:1/-1}
-  dialog{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:400px;width:92%}
-  dialog::backdrop{background:rgba(0,0,0,.6)}
-  dialog h3{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em;font-weight:500;color:var(--gold);margin-bottom:16px}
-  .hidden{display:none}
-  .toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;margin:28px 0 12px;flex-wrap:wrap}
-  .toolbar h2{margin:0}
-  #search{max-width:220px;margin:0}
-  @media (max-width:640px){
-    .hide-sm{display:none}
-    .stats{grid-template-columns:repeat(3,1fr)}
+
+  /* layout */
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(12,11,10,.92);backdrop-filter:blur(8px);z-index:5}
+  .top .brand{display:flex;align-items:center;gap:12px}
+  .top img{height:18px}
+  .top .date{font-size:.78rem;color:var(--muted)}
+  main{max-width:980px;margin:0 auto;padding:22px 16px 80px;display:flex;flex-direction:column;gap:34px}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  h2{font-family:var(--serif);font-weight:500;font-size:1.35rem;letter-spacing:-.01em}
+  h2 .count{font-family:'Poppins',sans-serif;font-size:.78rem;color:var(--gold);border:1px solid var(--gold-line);border-radius:20px;padding:1px 9px;margin-left:8px;vertical-align:3px}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1.1fr 2fr;gap:12px}
+  .today{background:var(--panel);border:1px solid var(--gold-line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center}
+  .today b{font-family:var(--serif);font-weight:500;font-size:4rem;line-height:1;color:var(--gold);margin:10px 0 4px}
+  .today span.s{font-size:.82rem;color:var(--muted)}
+  .minis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .mini{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:flex-end}
+  .mini b{font-family:var(--serif);font-weight:500;font-size:2rem;line-height:1}
+  .mini span{font-size:.74rem;color:var(--muted);margin-top:6px;line-height:1.4}
+  .mini.warn b{color:var(--warn)}
+
+  /* bars */
+  .bars{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:6px;align-items:end;height:170px;padding:14px 12px 10px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
+  .bar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%;cursor:pointer;background:none;border:none;color:inherit;padding:0}
+  .bar .n{font-size:.72rem;color:var(--muted)}
+  .bar .col{width:100%;max-width:26px;border-radius:6px 6px 3px 3px;background:var(--gold-soft);border:1px solid var(--gold-line);min-height:3px;transition:background .2s}
+  .bar:hover .col{background:rgba(207,178,124,.25)}
+  .bar.on .col{background:var(--gold);border-color:var(--gold)}
+  .bar.on .n{color:var(--gold);font-weight:600}
+  .bar .d{font-size:.62rem;color:var(--soft);line-height:1.25;text-align:center}
+  .bar.closed .col{background:transparent;border-style:dashed;border-color:var(--line2)}
+  .bars-note{font-size:.72rem;color:var(--soft);margin-top:8px}
+
+  /* tabs + lists */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{padding:8px 14px;border-radius:20px;border:1px solid var(--line2);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer}
+  .tab b{font-weight:600;margin-left:4px;color:var(--text)}
+  .tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .tab.on b{color:var(--gold)}
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-top:1px solid var(--line)}
+  .item:first-child{border-top:none}
+  .who{min-width:0}
+  .name{font-family:var(--serif);font-size:1.08rem;font-weight:500;line-height:1.3}
+  .meta{font-size:.76rem;color:var(--muted);margin-top:2px;line-height:1.5}
+  .meta .id{color:var(--gold);letter-spacing:.08em}
+  .side{display:flex;align-items:center;gap:14px;flex-shrink:0}
+  .left{text-align:right}
+  .left b{display:block;font-family:var(--serif);font-weight:500;font-size:1.7rem;line-height:1;color:var(--gold)}
+  .left b.zero{color:var(--warn)}
+  .left span{font-size:.68rem;color:var(--muted)}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:.66rem;letter-spacing:.03em;padding:2px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--muted)}
+  .chip.warn{border-color:var(--warn-line);color:var(--warn);background:var(--warn-soft)}
+  .chip.gold{border-color:var(--gold-line);color:var(--gold);background:var(--gold-soft)}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .member .mtop{display:flex;justify-content:space-between;align-items:center;gap:18px;flex:1;min-width:0}
+  .member .left span{white-space:nowrap}
+  .member .macts{flex-shrink:0}
+  .empty{padding:20px 18px;color:var(--muted);font-size:.86rem}
+  .time{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:44px}
+  #search{max-width:260px;margin:0}
+  .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .foot{font-size:.72rem;color:var(--soft);text-align:center}
+
+  /* dialogs */
+  dialog{background:var(--panel2);color:var(--text);border:1px solid var(--line2);border-radius:20px;padding:24px;max-width:420px;width:92%;margin:auto}
+  dialog::backdrop{background:rgba(0,0,0,.65)}
+  dialog h3{font-family:var(--serif);font-weight:500;font-size:1.35rem;margin-bottom:4px}
+  dialog .dsub{font-size:.8rem;color:var(--muted);margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  .grid2 .full{grid-column:1/-1}
+  .fl{font-size:.7rem;color:var(--muted);letter-spacing:.06em;margin:2px 0 5px;display:block}
+  .check{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);margin:2px 0 12px}
+  .check input{width:auto;margin:0;accent-color:var(--gold)}
+  .summary{font-size:.8rem;color:var(--gold);margin:-2px 0 12px;min-height:1.2em}
+  .done-id{font-family:var(--serif);font-size:2.6rem;color:var(--gold);text-align:center;letter-spacing:.1em;margin:8px 0}
+
+  @media (max-width:700px){
+    .hero{grid-template-columns:1fr}
+    .today{flex-direction:row;align-items:baseline;gap:12px}
+    .today b{font-size:3.2rem;margin:0}
+    .minis{grid-template-columns:repeat(3,1fr)}
+    .mini{padding:14px}
+    .mini b{font-size:1.6rem}
+    .bars{gap:3px;padding:12px 8px 8px}
+    .bar .d{font-size:.55rem}
+    .item{flex-direction:column;align-items:stretch}
+    .side{justify-content:space-between}
+    .left{text-align:left}
+    #search{max-width:none;flex:1}
+    .tools{flex:1 1 100% !important}
+    .member .mtop{align-items:flex-start}
+    .member .left{text-align:right}
+    .member .macts{display:grid;grid-template-columns:1fr 1fr 1fr auto;justify-content:stretch}
+    .member .macts .btn{padding-left:8px;padding-right:8px}
   }
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div class="login-wrap" id="viewLogin">
-  <img src="./logo.png" alt="KRAFT" style="height:36px;margin-bottom:34px">
-  <div class="card login-card">
+<div class="login" id="viewLogin">
+  <img src="./logo-gold.png" alt="KRAFT">
+  <div class="label">Coach</div>
+  <div class="card">
     <input type="email" id="email" placeholder="Email" autocomplete="username">
     <input type="password" id="password" placeholder="Password" autocomplete="current-password">
     <button class="btn" id="btnLogin">Sign in</button>
@@ -85,82 +155,104 @@
 
 <!-- DASHBOARD -->
 <div id="viewDash" class="hidden">
-  <header>
-    <span style="display:flex;align-items:center;gap:10px"><img src="./logo.png" alt="KRAFT" style="height:20px"><span class="wordmark" style="font-size:.8rem">COACH</span></span>
-    <button id="btnLogout">Sign out</button>
+  <header class="top">
+    <div class="brand"><img src="./logo-gold.png" alt="KRAFT"><span class="label">Coach</span></div>
+    <div class="tools"><span class="date" id="topDate"></span><button class="btn btn-sm btn-ghost" id="btnLogout">Sign out</button></div>
   </header>
   <main>
 
-    <div class="stats">
-      <div class="stat"><div class="n" id="statToday">0</div><div class="l">CHECK-INS TODAY</div></div>
-      <div class="stat"><div class="n" id="statDebt">0</div><div class="l">DEBT SESSIONS</div></div>
-      <div class="stat"><div class="n" id="statLow">0</div><div class="l">LOW BALANCE</div></div>
-    </div>
-
-    <div id="pendingWrap" class="hidden">
-      <h2>Pending approvals</h2>
-      <div class="card">
-        <table>
-          <thead><tr><th>Name</th><th>Phone</th><th class="hide-sm">Requested</th><th></th></tr></thead>
-          <tbody id="pendingBody"></tbody>
-        </table>
+    <section class="hero">
+      <div class="today"><span class="label">Today</span><b id="nToday">0</b><span class="s">check-ins</span></div>
+      <div class="minis">
+        <div class="mini"><b id="nWeek">0</b><span>Check-ins<br>last 7 days</span></div>
+        <div class="mini"><b id="nActive">0</b><span>Members with<br>an active package</span></div>
+        <div class="mini" id="debtBox"><b id="nDebt">0</b><span>Sessions owed<br>(no package)</span></div>
       </div>
-    </div>
+    </section>
 
-    <div class="toolbar">
-      <h2 id="attTitle">Attendance — Today</h2>
-      <input type="date" id="attDate" style="max-width:170px;margin:0">
-    </div>
-    <div class="card" id="todayCard">
-      <table>
-        <thead><tr><th>Client</th><th>Time</th><th class="hide-sm">Method</th><th></th><th></th></tr></thead>
-        <tbody id="todayBody"><tr><td colspan="5" class="muted">No check-ins yet today.</td></tr></tbody>
-      </table>
-    </div>
+    <section>
+      <div class="sec-head"><h2>Last 14 days</h2><span class="soft" style="font-size:.76rem">Tap a day to see who came</span></div>
+      <div class="bars" id="bars"></div>
+    </section>
 
-    <div class="toolbar">
-      <h2>Clients</h2>
-      <div style="display:flex;gap:8px">
-        <input id="search" placeholder="Search name or phone">
-        <button class="btn btn-sm" id="btnAddClient">+ Client</button>
+    <section id="attnSec">
+      <div class="sec-head"><h2>Needs attention<span class="count" id="nAttn">0</span></h2></div>
+      <div class="tabs">
+        <button class="tab on" data-tab="almost">Almost finishing<b id="tAlmost">0</b></button>
+        <button class="tab" data-tab="away">Away 7+ days<b id="tAway">0</b></button>
+        <button class="tab" data-tab="ended">Ended, not renewed<b id="tEnded">0</b></button>
       </div>
-    </div>
-    <div class="card">
-      <table>
-        <thead><tr>
-          <th>Name</th><th>Left</th><th class="hide-sm">Last seen</th><th>Flags</th><th></th>
-        </tr></thead>
-        <tbody id="clientsBody"></tbody>
-      </table>
-    </div>
+      <div class="list" id="attnList"></div>
+    </section>
 
+    <section id="pendingWrap" class="hidden">
+      <div class="sec-head"><h2>Pending approvals<span class="count" id="nPending">0</span></h2></div>
+      <div class="list" id="pendingList"></div>
+    </section>
+
+    <section id="daySec">
+      <div class="sec-head">
+        <h2 id="dayTitle">Today</h2>
+        <input type="date" id="attDate" style="max-width:170px;margin:0">
+      </div>
+      <div class="list" id="dayList"></div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <h2>Members<span class="count" id="nMembers">0</span></h2>
+        <div class="tools" style="flex:1;justify-content:flex-end">
+          <input id="search" placeholder="Search name, phone or ID">
+          <button class="btn btn-sm" id="btnAddClient">+ Member</button>
+        </div>
+      </div>
+      <div class="list" id="clientList"></div>
+    </section>
+
+    <p class="foot">Packages last 30 days (Flex 60). Unused sessions don’t carry over. Daily summary on Telegram every morning.</p>
   </main>
 </div>
 
-<!-- ADD CLIENT -->
+<!-- NEW MEMBER -->
 <dialog id="dlgClient">
-  <h3>New client</h3>
-  <input id="cName" placeholder="Full name">
-  <input id="cPhone" type="tel" placeholder="Phone (01XXXXXXXXX)" maxlength="11">
-  <select id="cType"><option value="kraft">Kraft (QR check-in)</option><option value="home">Home training</option></select>
-  <button class="btn" id="btnSaveClient">Save client</button>
-  <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgClient.close()">Cancel</button>
-  <p class="err" id="clientErr"></p>
+  <div id="clientForm">
+    <h3>New member</h3>
+    <p class="dsub">A 4-digit member ID is created automatically.</p>
+    <input id="cName" placeholder="Full name">
+    <input id="cPhone" type="tel" inputmode="numeric" placeholder="Phone (01XXXXXXXXX)" maxlength="11">
+    <select id="cType"><option value="kraft">Trains at Kraft (QR check-in)</option><option value="home">Home training</option></select>
+    <button class="btn" id="btnSaveClient">Save member</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgClient.close()">Cancel</button>
+    <p class="err" id="clientErr"></p>
+  </div>
+  <div id="clientDone" class="hidden" style="text-align:center">
+    <h3 id="cDoneName"></h3>
+    <p class="dsub">Member ID</p>
+    <div class="done-id" id="cDoneId"></div>
+    <p class="dsub">They can check in with this ID or their phone.</p>
+    <button class="btn" id="btnClientToPkg">Add their package</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgClient.close()">Done</button>
+  </div>
 </dialog>
 
 <!-- NEW PACKAGE + PAYMENT -->
 <dialog id="dlgPkg">
   <h3 id="pkgTitle">New package</h3>
-  <div class="form-grid">
-    <input id="pSessions" type="number" min="1" placeholder="Sessions (e.g. 12)">
-    <input id="pPrice" type="number" min="0" placeholder="Price EGP">
-    <input id="pExpiry" type="date" title="Expiry (optional)" class="full">
-    <select id="pMethod" class="full">
-      <option value="cash">Paid — Cash</option>
-      <option value="instapay">Paid — InstaPay</option>
-      <option value="unpaid">Not paid yet</option>
-    </select>
+  <p class="dsub" id="pkgSub">Prices fill in from your rate cards. You can still edit them.</p>
+  <div class="grid2">
+    <label class="full"><span class="fl">Level</span>
+      <select id="pTier">
+        <option>Semi-Private</option><option>VIP 1-on-1</option><option>Associate Coaching</option><option>Home Training</option><option>Custom</option>
+      </select></label>
+    <label class="full" id="pPresetWrap"><span class="fl">Package</span><select id="pPreset"></select></label>
+    <label class="full check hidden" id="pDuoWrap"><input type="checkbox" id="pDuo"> Duo, 10% off each</label>
+    <label><span class="fl">Sessions</span><input id="pSessions" type="number" min="1" inputmode="numeric"></label>
+    <label><span class="fl">Price (EGP)</span><input id="pPrice" type="number" min="0" inputmode="numeric"></label>
+    <label class="full"><span class="fl">Ends on</span><input id="pExpiry" type="date"></label>
+    <label class="full"><span class="fl">Payment</span>
+      <select id="pMethod"><option value="cash">Paid · Cash</option><option value="instapay">Paid · InstaPay</option><option value="unpaid">Not paid yet</option></select></label>
   </div>
+  <p class="summary" id="pSummary"></p>
   <button class="btn" id="btnSavePkg">Save package</button>
   <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgPkg.close()">Cancel</button>
   <p class="err" id="pkgErr"></p>
@@ -169,25 +261,45 @@
 <!-- MANAGE PACKAGES -->
 <dialog id="dlgManage">
   <h3 id="manageTitle">Packages</h3>
-  <div id="manageList" style="max-height:50vh;overflow:auto"></div>
+  <p class="dsub" id="manageSub"></p>
+  <div id="manageList" style="max-height:52vh;overflow:auto"></div>
   <button class="btn btn-ghost" style="margin-top:12px" onclick="dlgManage.close()">Close</button>
 </dialog>
 
 <script>
-/* ====== CONFIG — same two values as checkin.html ====== */
+/* ====== CONFIG ====== */
 const SUPABASE_URL = "https://gndbfxwjcumkftbultkt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_e2x7PPQQ4iO71ZoyyZk_6A_b_FLKIdu";
-/* ====================================================== */
+/* ==================== */
+
+const AWAY_DAYS = 7, ALMOST_LEFT = 2, ALMOST_DAYS = 5, ENDED_WINDOW = 14, VALID_DAYS = 30;
+const PRESETS = {
+  'Semi-Private':       [['Semi-Private 8',8,2400],['Semi-Private 12',12,3600],['Semi-Private 16',16,4500],['Semi-Private 20',20,5400],['Semi-Private Flex 12',12,4400,60],['Semi-Private Flex 20',20,6800,60],['Semi-Private · Single session',1,400]],
+  'VIP 1-on-1':         [['VIP 8',8,4800],['VIP 12',12,6900],['VIP 16',16,8800]],
+  'Associate Coaching': [['Associate 8',8,1800],['Associate 12',12,2700],['Associate 16',16,3400],['Associate 20',20,4000]],
+  'Home Training':      [],
+  'Custom':             []
+};
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 const show = (el,on=true)=>el.classList.toggle('hidden',!on);
-let clients = [], packages = [], attendance = [], pkgClientId = null;
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let clients = [], packages = [], attendance = [], pkgClientId = null, attnTab = 'almost', newClientId = null;
+
+/* ---------- dates in Cairo time ---------- */
+const ymd = d => new Date(d).toLocaleDateString('en-CA', { timeZone:'Africa/Cairo' });   // YYYY-MM-DD
+const todayStr = () => ymd(new Date());
+const addDays = (s, n) => { const d = new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+const diffDays = (a, b) => Math.round((new Date(a+'T12:00:00Z') - new Date(b+'T12:00:00Z')) / 864e5); // a - b
+const nice = (s, opts={day:'numeric',month:'short'}) => new Date(s+'T12:00:00Z').toLocaleDateString('en-GB', {...opts, timeZone:'UTC'});
+const niceAr = s => new Date(s+'T12:00:00Z').toLocaleDateString('ar-EG', {day:'numeric',month:'long',timeZone:'UTC'});
+const timeFmt = d => new Date(d).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Africa/Cairo'});
 
 /* ---------- auth ---------- */
 async function init(){
   const { data:{ session } } = await db.auth.getSession();
-  if (session) enter(); 
+  if (session) enter();
 }
 $('btnLogin').onclick = async ()=>{
   $('loginErr').textContent='';
@@ -195,14 +307,15 @@ $('btnLogin').onclick = async ()=>{
   if (error) { $('loginErr').textContent = 'Sign-in failed. Check email and password.'; return; }
   enter();
 };
+$('password').addEventListener('keydown', e=>{ if (e.key==='Enter') $('btnLogin').click(); });
 $('btnLogout').onclick = async ()=>{ await db.auth.signOut(); location.reload(); };
 
 function enter(){
-  $('viewLogin').classList.add('hidden');
-  $('viewDash').classList.remove('hidden');
-  $('attDate').value = new Date().toISOString().slice(0,10);
+  show($('viewLogin'), false); show($('viewDash'), true);
+  $('attDate').value = todayStr();
+  $('topDate').textContent = nice(todayStr(), {weekday:'long', day:'numeric', month:'long'});
   loadAll();
-  setInterval(loadAll, 30000); // refresh every 30s during sessions
+  setInterval(loadAll, 30000);
 }
 
 /* ---------- data ---------- */
@@ -210,214 +323,309 @@ async function loadAll(){
   const [c,p,a] = await Promise.all([
     db.from('kraft_clients').select('*').order('full_name'),
     db.from('kraft_packages').select('*'),
-    db.from('kraft_attendance').select('*').order('checked_in_at',{ascending:false}).limit(1500),
+    db.from('kraft_attendance').select('*').order('checked_in_at',{ascending:false}).limit(3000),
   ]);
   clients = c.data||[]; packages = p.data||[]; attendance = a.data||[];
   render();
 }
 
-function remainingFor(clientId){
-  const pkgs = packages.filter(p=>p.client_id===clientId);
-  const used = id => attendance.filter(a=>a.package_id===id).length;
-  return pkgs.reduce((s,p)=> s + Math.max(0, p.sessions_total - used(p.id)), 0);
+const endOf = p => p.expiry_date || (p.start_date ? addDays(String(p.start_date).slice(0,10), VALID_DAYS) : null);
+const usedOf = id => attendance.filter(a=>a.package_id===id).length;
+const isActiveClient = c => c.status==='active' || (!c.status && c.active!==false);
+const pkgName = p => p.package_name || (p.sessions_total + ' sessions');
+
+/* Everything the dashboard needs to know about one member */
+function infoFor(c){
+  const today = todayStr();
+  const pk = packages.filter(p=>p.client_id===c.id).map(p=>{
+    const used = usedOf(p.id), end = endOf(p);
+    const lastUse = attendance.find(a=>a.package_id===p.id);
+    return { p, used, rem: Math.max(0, p.sessions_total - used), end, inDate: !end || end >= today, lastUse: lastUse ? ymd(lastUse.checked_in_at) : null };
+  }).sort((a,b)=> new Date(b.p.created_at) - new Date(a.p.created_at));
+  const active = pk.filter(x=>x.inDate && x.rem>0);
+  const last = attendance.find(a=>a.client_id===c.id);
+  const lastVisit = last ? ymd(last.checked_in_at) : null;
+  const left = active.length ? active.reduce((s,x)=>s+x.rem,0) : null;
+  const ends = active.length ? active.map(x=>x.end).filter(Boolean).sort()[0] || null : null;
+  const started = active.length ? active.map(x=>String(x.p.start_date||'').slice(0,10)).filter(Boolean).sort()[0] || null : null;
+  const latest = pk[0] || null;
+  const lastEnd = latest ? (latest.end && latest.end < today ? latest.end : (latest.lastUse || latest.end)) : null;
+  const debt = attendance.filter(a=>a.client_id===c.id && a.is_debt).length;
+  const ref = [lastVisit, started].filter(Boolean).sort().pop() || null;   // later of last visit and package start
+  return {
+    pk, active, left, ends, started, lastVisit, latest, lastEnd, debt,
+    current: active[0] || null,
+    daysAway: ref ? diffDays(today, ref) : null,
+    almost: left!==null && (left<=ALMOST_LEFT || (ends && diffDays(ends, today)<=ALMOST_DAYS)),
+    away:   left!==null && ref && diffDays(today, ref) >= AWAY_DAYS,
+    ended:  left===null && lastEnd && diffDays(today, lastEnd) <= ENDED_WINDOW && diffDays(today, lastEnd) >= 0,
+  };
 }
-function lastSeen(clientId){
-  const a = attendance.find(x=>x.client_id===clientId);
-  return a ? new Date(a.checked_in_at) : null;
+
+/* ---------- WhatsApp ---------- */
+function waLink(c, kind, info){
+  const first = (c.full_name||'').split(' ')[0];
+  const n = info.left;
+  const leftAr = n===1 ? 'حصة واحدة' : n===2 ? 'حصتين' : n+' حصص';
+  const msg = kind==='almost'
+    ? `أهلاً ${first}، باقتك في KRAFT فاضل فيها ${leftAr}${info.ends ? ' وبتنتهي يوم '+niceAr(info.ends) : ''}. تحب أجهزلك التجديد؟`
+    : kind==='away'
+    ? `أهلاً ${first}، وحشتنا في KRAFT. آخر تمرين ليك كان من ${info.daysAway} يوم، كله تمام؟ مستنيينك.`
+    : `أهلاً ${first}، باقتك في KRAFT انتهت يوم ${niceAr(info.lastEnd)}. تحب أجهزلك باقة جديدة؟`;
+  const phone = String(c.phone||'').replace(/\D/g,'');
+  return 'https://wa.me/20' + phone.replace(/^0/,'') + '?text=' + encodeURIComponent(msg);
 }
-const dayFmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-const timeFmt = d => d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
 /* ---------- render ---------- */
 function render(){
-  const todayStr = new Date().toDateString();
-  const selVal = $('attDate').value;
-  const selDate = selVal ? new Date(selVal+'T12:00:00') : new Date();
-  const selStr = selDate.toDateString();
-  const isToday = selStr === todayStr;
-  $('attTitle').textContent = 'Attendance — ' + (isToday ? 'Today' : selDate.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}));
-  const today = attendance.filter(a=> new Date(a.checked_in_at).toDateString()===selStr);
+  const today = todayStr();
+  const dayOf = a => ymd(a.checked_in_at);
+  const byDay = {};
+  attendance.forEach(a=>{ const d = dayOf(a); byDay[d] = (byDay[d]||0)+1; });
 
-  $('statToday').textContent = attendance.filter(a=> new Date(a.checked_in_at).toDateString()===todayStr).length;
-  $('statDebt').textContent  = attendance.filter(a=>a.is_debt).length;
+  // hero
+  $('nToday').textContent = byDay[today] || 0;
+  let week = 0; for (let i=0;i<7;i++) week += byDay[addDays(today,-i)] || 0;
+  $('nWeek').textContent = week;
+  const debtN = attendance.filter(a=>a.is_debt).length;
+  $('nDebt').textContent = debtN; $('debtBox').classList.toggle('warn', debtN>0);
 
-  // today table
-  const tb = $('todayBody'); tb.innerHTML='';
-  if (!today.length) tb.innerHTML='<tr><td colspan="5" class="muted">No check-ins on this day.</td></tr>';
-  today.forEach(a=>{
-    const c = clients.find(x=>x.id===a.client_id);
-    tb.insertAdjacentHTML('beforeend', `<tr>
-      <td>${c?c.full_name:'—'}</td>
-      <td class="muted">${timeFmt(new Date(a.checked_in_at))}</td>
-      <td class="muted hide-sm">${a.method==='qr'?'QR':'Coach'}</td>
-      <td>${a.is_debt?'<span class="tag tag-debt">debt</span>':''}</td>
-      <td style="text-align:right"><button class="btn btn-sm btn-ghost" title="Remove this check-in" onclick="deleteAttendance('${a.id}','${c?c.full_name.replace(/'/g,"\\'"):''}')">✕</button></td>
-    </tr>`);
-  });
+  // bars
+  const days = []; for (let i=13;i>=0;i--) days.push(addDays(today,-i));
+  const max = Math.max(1, ...days.map(d=>byDay[d]||0));
+  const sel = $('attDate').value;
+  $('bars').innerHTML = days.map(d=>{
+    const n = byDay[d]||0, fri = new Date(d+'T12:00:00Z').getUTCDay()===5;
+    const h = Math.max(3, Math.round((n/max)*110));
+    return `<button class="bar ${d===sel?'on':''} ${fri?'closed':''}" data-day="${d}" title="${nice(d,{weekday:'long',day:'numeric',month:'long'})}: ${n}">
+      <span class="n">${n||''}</span><span class="col" style="height:${h}px"></span>
+      <span class="d">${nice(d,{weekday:'short'}).slice(0,2)}<br>${nice(d,{day:'numeric'})}</span></button>`;
+  }).join('');
+  document.querySelectorAll('.bar').forEach(b=> b.onclick = ()=>{ $('attDate').value = b.dataset.day; render(); $('daySec').scrollIntoView({behavior:'smooth', block:'start'}); });
 
-  // clients table
-  const q = ($('search').value||'').toLowerCase();
-  const cb = $('clientsBody'); cb.innerHTML='';
-  let lowCount = 0;
+  // members + attention
+  const q = ($('search').value||'').toLowerCase().trim();
+  const active = clients.filter(isActiveClient);
+  const infos = new Map(active.map(c=>[c.id, infoFor(c)]));
+  $('nActive').textContent = active.filter(c=>infos.get(c.id).left!==null).length;
+
+  const groups = {
+    almost: active.filter(c=>infos.get(c.id).almost).sort((a,b)=> (infos.get(a.id).left - infos.get(b.id).left)),
+    away:   active.filter(c=>infos.get(c.id).away).sort((a,b)=> infos.get(b.id).daysAway - infos.get(a.id).daysAway),
+    ended:  active.filter(c=>infos.get(c.id).ended).sort((a,b)=> (infos.get(b.id).lastEnd||'').localeCompare(infos.get(a.id).lastEnd||'')),
+  };
+  $('tAlmost').textContent = groups.almost.length; $('tAway').textContent = groups.away.length; $('tEnded').textContent = groups.ended.length;
+  $('nAttn').textContent = new Set([...groups.almost, ...groups.away, ...groups.ended].map(c=>c.id)).size;
+  document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t.dataset.tab===attnTab));
+  const g = groups[attnTab];
+  $('attnList').innerHTML = g.length ? g.map(c=>{
+    const i = infos.get(c.id);
+    const detail = attnTab==='almost'
+      ? `${i.left} left${i.ends ? ' · ends '+nice(i.ends) : ''}${i.current ? ' · '+esc(pkgName(i.current.p)) : ''}`
+      : attnTab==='away'
+      ? ((i.lastVisit && (!i.started || i.lastVisit >= i.started)) ? `${i.daysAway} days since last visit · ${nice(i.lastVisit)}` : `No visit since the package started ${i.daysAway} days ago`)
+      : `${i.latest ? esc(pkgName(i.latest.p))+' · ' : ''}ended ${nice(i.lastEnd)}`;
+    return `<div class="item"><div class="who"><div class="name">${esc(c.full_name)}</div>
+      <div class="meta">${c.member_no?'<span class="id">#'+c.member_no+'</span> · ':''}${detail}</div></div>
+      <div class="actions">
+        <a class="btn btn-sm btn-wa" href="${waLink(c, attnTab, i)}" target="_blank" rel="noopener">WhatsApp</a>
+        <button class="btn btn-sm btn-ghost" onclick="openPkg('${c.id}')">+ Package</button>
+      </div></div>`;
+  }).join('') : `<div class="empty">${attnTab==='almost'?'Nobody is close to finishing.':attnTab==='away'?'Everyone with a package has trained in the last 7 days.':'No packages ended without a renewal in the last 14 days.'}</div>`;
+
   // pending approvals
   const pending = clients.filter(c=>c.status==='pending');
-  show($('pendingWrap'), pending.length>0);
-  const pb = $('pendingBody'); pb.innerHTML='';
-  pending.forEach(c=>{
-    pb.insertAdjacentHTML('beforeend', `<tr>
-      <td>${c.full_name}</td>
-      <td class="muted">${c.phone}</td>
-      <td class="muted hide-sm">${dayFmt(new Date(c.created_at))}</td>
-      <td><div class="row-actions">
-        <button class="btn btn-sm" onclick="approveClient('${c.id}')">Approve</button>
-        <button class="btn btn-sm btn-ghost" onclick="rejectClient('${c.id}','${c.full_name.replace(/'/g,"\\'")}')">Reject</button>
-      </div></td>
-    </tr>`);
-  });
+  show($('pendingWrap'), pending.length>0); $('nPending').textContent = pending.length;
+  $('pendingList').innerHTML = pending.map(c=>`<div class="item"><div class="who"><div class="name">${esc(c.full_name)}</div>
+      <div class="meta">${esc(c.phone)} · registered ${nice(ymd(c.created_at))}</div></div>
+      <div class="actions"><button class="btn btn-sm" onclick="approveClient('${c.id}')">Approve</button>
+      <button class="btn btn-sm btn-ghost" onclick="rejectClient('${c.id}')">Reject</button></div></div>`).join('');
 
-  clients.filter(c=>c.status==='active' || (c.active && !c.status))
-    .filter(c=> !q || c.full_name.toLowerCase().includes(q) || c.phone.includes(q))
-    .forEach(c=>{
-      const rem = remainingFor(c.id);
-      const seen = lastSeen(c.id);
-      const daysAway = seen ? Math.floor((Date.now()-seen)/864e5) : null;
-      const hasDebt = attendance.some(a=>a.client_id===c.id && a.is_debt);
-      if (rem>0 && rem<=2) lowCount++;
-      const flags = [
-        hasDebt ? '<span class="tag tag-debt">debt</span>' : '',
-        (rem>0 && rem<=2) ? '<span class="tag tag-low">'+rem+' left</span>' : '',
-        (daysAway!==null && daysAway>=10) ? '<span class="tag tag-away">'+daysAway+'d away</span>' : '',
-        c.client_type==='home' ? '<span class="tag tag-home">home</span>' : '',
-      ].join(' ');
-      cb.insertAdjacentHTML('beforeend', `<tr>
-        <td>${c.full_name}<div class="muted">${c.phone}</div></td>
-        <td><span class="remain ${rem===0?'zero':''}">${rem}</span></td>
-        <td class="muted hide-sm">${seen?dayFmt(seen):'never'}</td>
-        <td>${flags}</td>
-        <td><div class="row-actions">
-          <button class="btn btn-sm" onclick="openPkg('${c.id}')">+ Package</button>
-          <button class="btn btn-sm btn-ghost" onclick="logSession('${c.id}')">Log session</button>
-          <button class="btn btn-sm btn-ghost" onclick="openManage('${c.id}')">Packages</button>
-          <button class="btn btn-sm btn-ghost" title="Remove client" onclick="removeClient('${c.id}','${c.full_name.replace(/'/g,"\\'")}')">✕</button>
-        </div></td>
-      </tr>`);
-    });
-  $('statLow').textContent = lowCount;
+  // selected day
+  $('dayTitle').textContent = sel===today ? 'Today' : nice(sel, {weekday:'long', day:'numeric', month:'short'});
+  const dayRows = attendance.filter(a=>dayOf(a)===sel).sort((a,b)=> new Date(a.checked_in_at)-new Date(b.checked_in_at));
+  $('dayTitle').insertAdjacentHTML('beforeend', `<span class="count">${dayRows.length}</span>`);
+  $('dayList').innerHTML = dayRows.length ? dayRows.map(a=>{
+    const c = clients.find(x=>x.id===a.client_id); const p = packages.find(x=>x.id===a.package_id);
+    return `<div class="item"><div class="side" style="gap:16px"><span class="time">${timeFmt(a.checked_in_at)}</span>
+      <div class="who"><div class="name">${c?esc(c.full_name):'—'}</div>
+      <div class="meta">${c&&c.member_no?'<span class="id">#'+c.member_no+'</span> · ':''}${p?esc(pkgName(p)):'No package'} · ${a.method==='qr'?'Self check-in':'Logged by coach'}</div>
+      ${a.is_debt?'<div class="chips"><span class="chip warn">owed session</span></div>':''}</div></div>
+      <div class="actions"><button class="btn btn-sm btn-ghost" title="Remove this check-in" onclick="deleteAttendance('${a.id}')">Remove</button></div></div>`;
+  }).join('') : '<div class="empty">No check-ins on this day.</div>';
+
+  // members
+  const list = active.filter(c=> !q || (c.full_name||'').toLowerCase().includes(q) || String(c.phone||'').includes(q) || String(c.member_no||'').includes(q));
+  $('nMembers').textContent = active.length;
+  $('clientList').innerHTML = list.length ? list.map(c=>{
+    const i = infos.get(c.id);
+    const chips = [
+      i.debt ? `<span class="chip warn">${i.debt} owed</span>` : '',
+      i.almost ? `<span class="chip gold">almost finishing</span>` : '',
+      i.away ? `<span class="chip">${i.daysAway}d away</span>` : '',
+      i.ended ? `<span class="chip">ended ${nice(i.lastEnd)}</span>` : '',
+      c.client_type==='home' ? '<span class="chip">home</span>' : '',
+    ].join('');
+    const pkgLine = i.current ? `${esc(pkgName(i.current.p))}${i.ends?' · ends '+nice(i.ends):''}` : 'No active package';
+    const n = i.left===null?0:i.left;
+    return `<div class="item member">
+      <div class="mtop">
+        <div class="who"><div class="name">${esc(c.full_name)}</div>
+          <div class="meta">${c.member_no?'<span class="id">#'+c.member_no+'</span> · ':''}${esc(c.phone)}</div>
+          <div class="meta">${pkgLine} · last visit ${i.lastVisit ? nice(i.lastVisit) : 'never'}</div>
+          ${chips?'<div class="chips">'+chips+'</div>':''}</div>
+        <div class="left"><b class="${n===0?'zero':''}">${n}</b><span>${n===1?'session':'sessions'} left</span></div>
+      </div>
+      <div class="actions macts">
+        <button class="btn btn-sm" onclick="openPkg('${c.id}')">+ Package</button>
+        <button class="btn btn-sm btn-ghost" onclick="logSession('${c.id}')">Log session</button>
+        <button class="btn btn-sm btn-ghost" onclick="openManage('${c.id}')">Packages</button>
+        <button class="btn btn-sm btn-ghost" title="Remove member" aria-label="Remove member" onclick="removeClient('${c.id}')">✕</button>
+      </div></div>`;
+  }).join('') : '<div class="empty">No members match.</div>';
 }
 $('search').oninput = render;
 $('attDate').onchange = render;
+document.querySelectorAll('.tab').forEach(t=> t.onclick = ()=>{ attnTab = t.dataset.tab; render(); });
 
-/* ---------- add client ---------- */
-$('btnAddClient').onclick = ()=>{ $('clientErr').textContent=''; dlgClient.showModal(); };
+/* ---------- new member ---------- */
+$('btnAddClient').onclick = ()=>{ $('clientErr').textContent=''; show($('clientForm'),true); show($('clientDone'),false); dlgClient.showModal(); };
 $('btnSaveClient').onclick = async ()=>{
   const name = $('cName').value.trim();
   const phone = $('cPhone').value.replace(/\D/g,'');
-  if (!name || !/^01\d{9}$/.test(phone)) { $('clientErr').textContent='Name + valid 11-digit phone required.'; return; }
-  const { error } = await db.from('kraft_clients').insert({ full_name:name, phone, client_type:$('cType').value, status:'active' });
-  if (error){ $('clientErr').textContent = error.code==='23505' ? 'Phone already registered.' : 'Could not save.'; return; }
+  if (!name || !/^01\d{9}$/.test(phone)) { $('clientErr').textContent='Full name and a valid 11-digit phone are required.'; return; }
+  const { data, error } = await db.from('kraft_clients').insert({ full_name:name, phone, client_type:$('cType').value, status:'active' }).select().single();
+  if (error){ $('clientErr').textContent = error.code==='23505' ? 'This phone is already registered.' : 'Could not save.'; return; }
   $('cName').value=''; $('cPhone').value='';
-  dlgClient.close(); loadAll();
+  newClientId = data.id;
+  $('cDoneName').textContent = data.full_name;
+  $('cDoneId').textContent = data.member_no || '—';
+  show($('clientForm'),false); show($('clientDone'),true);
+  loadAll();
 };
+$('btnClientToPkg').onclick = ()=>{ dlgClient.close(); openPkg(newClientId); };
 
 /* ---------- new package + payment ---------- */
+function fillPresets(){
+  const tier = $('pTier').value, list = PRESETS[tier];
+  show($('pPresetWrap'), list.length>0);
+  show($('pDuoWrap'), tier==='Semi-Private');
+  $('pPreset').innerHTML = list.map((x,i)=>`<option value="${i}">${x[1]===1?'Single session':(x[3]?'Flex · ':'')+x[1]+' sessions'} · ${x[2].toLocaleString('en')} EGP${x[3]?' · '+x[3]+' days':''}</option>`).join('');
+  if (list.length) applyPreset(); else { $('pSessions').value=''; $('pPrice').value=''; $('pExpiry').value = addDays(todayStr(), VALID_DAYS); summary(); }
+}
+function applyPreset(){
+  const x = PRESETS[$('pTier').value][+$('pPreset').value];
+  if (!x) return;
+  $('pSessions').value = x[1];
+  $('pPrice').value = $('pDuo').checked ? Math.round(x[2]*0.9) : x[2];
+  $('pExpiry').value = addDays(todayStr(), x[3] || VALID_DAYS);
+  summary();
+}
+function currentName(){
+  const tier = $('pTier').value, list = PRESETS[tier];
+  const s = parseInt($('pSessions').value)||0;
+  let name = list.length ? list[+$('pPreset').value][0] : (tier==='Custom' ? s+' sessions' : tier+' '+s);
+  if (tier==='Semi-Private' && $('pDuo').checked) name += ' · Duo';
+  return name;
+}
+function summary(){
+  const s = parseInt($('pSessions').value)||0, pr = parseFloat($('pPrice').value)||0;
+  $('pSummary').textContent = s ? `${currentName()} · ${s} session${s>1?'s':''} · ${pr.toLocaleString('en')} EGP · ends ${$('pExpiry').value?nice($('pExpiry').value):'—'}` : '';
+}
+$('pTier').onchange = fillPresets; $('pPreset').onchange = applyPreset; $('pDuo').onchange = applyPreset;
+['pSessions','pPrice','pExpiry'].forEach(id=> $(id).oninput = summary);
+
 function openPkg(clientId){
   pkgClientId = clientId;
   const c = clients.find(x=>x.id===clientId);
-  $('pkgTitle').textContent = 'New package — ' + (c?c.full_name.split(' ')[0]:'');
-  $('pkgErr').textContent='';
-  const d = new Date(); d.setDate(d.getDate()+30);
-  $('pExpiry').value = d.toISOString().slice(0,10); // 30-day validity, editable
+  $('pkgTitle').textContent = 'New package' + (c ? ' · ' + (c.full_name||'').split(' ')[0] : '');
+  $('pkgErr').textContent=''; $('pDuo').checked = false;
+  const latest = c ? infoFor(c).latest : null;
+  if (latest && latest.p.tier && PRESETS[latest.p.tier]) $('pTier').value = latest.p.tier;   // start from what they had
+  fillPresets();
+  if (latest && latest.p.package_name){
+    const i = (PRESETS[$('pTier').value]||[]).findIndex(x=> latest.p.package_name.indexOf(x[0])===0);
+    if (i>-1){ $('pPreset').value = i; $('pDuo').checked = /Duo/.test(latest.p.package_name); applyPreset(); }
+  }
   dlgPkg.showModal();
 }
 $('btnSavePkg').onclick = async ()=>{
   const sessions = parseInt($('pSessions').value), price = parseFloat($('pPrice').value)||0;
   if (!sessions || sessions<1){ $('pkgErr').textContent='Enter the number of sessions.'; return; }
-  const { data:pkg, error } = await db.from('kraft_packages').insert({
-    client_id: pkgClientId, sessions_total: sessions, price_egp: price,
-    expiry_date: $('pExpiry').value || null
-  }).select().single();
-  if (error){ $('pkgErr').textContent='Could not save package.'; return; }
-  const method = $('pMethod').value;
+  const base = { client_id: pkgClientId, sessions_total: sessions, price_egp: price, expiry_date: $('pExpiry').value || addDays(todayStr(), VALID_DAYS) };
+  let res = await db.from('kraft_packages').insert({ ...base, tier: $('pTier').value, package_name: currentName() }).select().single();
+  if (res.error && /tier|package_name|PGRST204/i.test((res.error.message||'')+(res.error.code||''))) {
+    res = await db.from('kraft_packages').insert(base).select().single();   // database update not installed yet
+  }
+  if (res.error){ $('pkgErr').textContent='Could not save the package.'; return; }
+  const pkg = res.data, method = $('pMethod').value;
   if (method!=='unpaid' && price>0){
     await db.from('kraft_payments').insert({ client_id:pkgClientId, package_id:pkg.id, amount_egp:price, method });
   }
-  // settle outstanding debt sessions into this new package
   const debtRows = attendance.filter(a=>a.client_id===pkgClientId && a.is_debt);
   if (debtRows.length){
     const n = Math.min(debtRows.length, sessions);
-    if (confirm('This client has ' + debtRows.length + ' debt session(s). Deduct ' + n + ' from the new package to settle them?')){
-      const ids = debtRows.slice(0, n).map(a=>a.id);
-      await db.from('kraft_attendance').update({ package_id: pkg.id, is_debt: false }).in('id', ids);
+    if (confirm('This member has ' + debtRows.length + ' owed session(s). Deduct ' + n + ' from the new package to settle them?')){
+      await db.from('kraft_attendance').update({ package_id: pkg.id, is_debt: false }).in('id', debtRows.slice(0, n).map(a=>a.id));
     }
   }
-  $('pSessions').value=''; $('pPrice').value=''; $('pExpiry').value='';
   dlgPkg.close(); loadAll();
 };
 
 /* ---------- manual session (home clients / QR fallback) ---------- */
 async function logSession(clientId){
-  const cl = clients.find(x=>x.id===clientId);
-  if (!confirm('Log a session for ' + (cl?cl.full_name:'this client') + '? This deducts 1 from their package.')) return;
-  // attach to the newest package with sessions remaining, else debt
-  const pkgs = packages.filter(p=>p.client_id===clientId)
-    .sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
-  const used = id => attendance.filter(a=>a.package_id===id).length;
-  const open = pkgs.find(p=> p.sessions_total - used(p.id) > 0);
-  await db.from('kraft_attendance').insert({
-    client_id: clientId, package_id: open?open.id:null, method:'coach', is_debt: !open
-  });
+  const c = clients.find(x=>x.id===clientId);
+  if (!confirm('Log a session for ' + (c?c.full_name:'this member') + '? This deducts 1 from their package.')) return;
+  const open = c ? infoFor(c).active.slice().sort((a,b)=> (a.end||'9999').localeCompare(b.end||'9999'))[0] : null;   // use the package that ends first
+  await db.from('kraft_attendance').insert({ client_id: clientId, package_id: open?open.p.id:null, method:'coach', is_debt: !open });
   loadAll();
 }
 
 async function approveClient(id){
   await db.from('kraft_clients').update({ status:'active' }).eq('id', id);
   await loadAll();
-  openPkg(id); // straight into setting up their first package
+  openPkg(id);
 }
-async function rejectClient(id, name){
-  if (!confirm('Reject and delete the registration of ' + name + '?')) return;
+async function rejectClient(id){
+  const c = clients.find(x=>x.id===id);
+  if (!confirm('Reject and delete the registration of ' + (c?c.full_name:'this person') + '?')) return;
   await db.from('kraft_clients').delete().eq('id', id);
   loadAll();
 }
-async function removeClient(id, name){
-  if (!confirm('Remove ' + name + ' completely? This deletes their packages, payments and attendance history. This cannot be undone.')) return;
-  if (!confirm('Final confirmation — delete ' + name + ' and all their history?')) return;
+async function removeClient(id){
+  const c = clients.find(x=>x.id===id), n = c?c.full_name:'this member';
+  if (!confirm('Remove ' + n + ' completely? This deletes their packages, payments and attendance history. This cannot be undone.')) return;
+  if (!confirm('Final confirmation — delete ' + n + ' and all their history?')) return;
   await db.from('kraft_clients').delete().eq('id', id);
   loadAll();
 }
 function openManage(clientId){
   const c = clients.find(x=>x.id===clientId);
-  $('manageTitle').textContent = 'Packages — ' + (c?c.full_name:'');
-  const used = id => attendance.filter(a=>a.package_id===id).length;
-  const pkgs = packages.filter(p=>p.client_id===clientId)
-    .sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
-  const box = $('manageList');
-  box.innerHTML = pkgs.length ? '' : '<p class="muted">No packages yet.</p>';
-  pkgs.forEach(p=>{
-    const u = used(p.id), rem = Math.max(0, p.sessions_total - u);
-    box.insertAdjacentHTML('beforeend', `
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
-        <div>
-          <div><span class="remain ${rem===0?'zero':''}">${rem}</span> <span class="muted">/ ${p.sessions_total} left</span></div>
-          <div class="muted">${p.price_egp>0 ? p.price_egp+' EGP · ' : ''}${p.start_date}${p.expiry_date?' → '+p.expiry_date:''}</div>
-        </div>
-        <button class="btn btn-sm btn-ghost" onclick="deletePackage('${p.id}', ${u})">Delete</button>
-      </div>`);
-  });
+  $('manageTitle').textContent = c ? c.full_name : 'Packages';
+  $('manageSub').textContent = c && c.member_no ? 'Member #' + c.member_no + ' · ' + c.phone : (c?c.phone:'');
+  const today = todayStr();
+  const pk = c ? infoFor(c).pk : [];
+  $('manageList').innerHTML = pk.length ? pk.map(x=>{
+    const state = !x.inDate ? 'ended' : x.rem===0 ? 'used up' : 'active';
+    return `<div class="item" style="padding:12px 2px;flex-direction:row;align-items:center">
+      <div class="who"><div class="name" style="font-size:1rem">${esc(pkgName(x.p))}</div>
+        <div class="meta">${x.used}/${x.p.sessions_total} used · ${state}${x.p.price_egp>0?' · '+Number(x.p.price_egp).toLocaleString('en')+' EGP':''}</div>
+        <div class="meta">${x.p.start_date?nice(String(x.p.start_date).slice(0,10)):''}${x.end?' → '+nice(x.end):''}</div></div>
+      <button class="btn btn-sm btn-ghost" onclick="deletePackage('${x.p.id}', ${x.used})">Delete</button></div>`;
+  }).join('') : '<p class="muted">No packages yet.</p>';
   dlgManage.showModal();
 }
 async function deletePackage(id, usedCount){
   const warn = usedCount>0
-    ? 'This package has ' + usedCount + ' logged sessions attached. Deleting it keeps the attendance records but detaches them. Delete package?'
+    ? 'This package has ' + usedCount + ' logged sessions. Deleting it keeps the attendance records but detaches them. Delete package?'
     : 'Delete this package?';
   if (!confirm(warn)) return;
   await db.from('kraft_packages').delete().eq('id', id);
-  await loadAll();
-  dlgManage.close();
+  await loadAll(); dlgManage.close();
 }
-
-async function deleteAttendance(id, name){
-  if (!confirm('Remove this check-in' + (name?(' for '+name):'') + '? The session returns to the package.')) return;
+async function deleteAttendance(id){
+  const a = attendance.find(x=>x.id===id), c = a ? clients.find(x=>x.id===a.client_id) : null;
+  if (!confirm('Remove this check-in' + (c?(' for '+c.full_name):'') + '? The session returns to the package.')) return;
   await db.from('kraft_attendance').delete().eq('id', id);
   loadAll();
 }

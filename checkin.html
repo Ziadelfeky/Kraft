@@ -2,128 +2,88 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0b">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0a">
 <title>KRAFT — Check-in</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Lora:wght@500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --bg:#0a0a0b; --panel:#131316; --line:#232329;
-    --gold:#d4e96c; --gold-soft:rgba(212,233,108,.10);
-    --text:#f2f2f0; --muted:#87878f;
-    --ok:#7fae7a; --warn:#c96f5e;
+    --bg:#0c0b0a; --panel:#161411; --panel2:#1c1915; --line:rgba(242,237,228,.10); --line2:rgba(242,237,228,.18);
+    --gold:#cfb27c; --gold-soft:rgba(207,178,124,.10); --gold-line:rgba(207,178,124,.35);
+    --text:#f2ede4; --muted:#b0a99c; --soft:#938c7f;
+    --ok:#9cc49a; --warn:#e3967f; --warn-soft:rgba(227,150,127,.10);
+    --serif:'Lora',Georgia,serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   body{
-    background:radial-gradient(1100px 520px at 50% -8%, #16161a 0%, var(--bg) 60%) fixed, var(--bg); color:var(--text);
-    font-family:'Cairo','Poppins',sans-serif;
-    min-height:100dvh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; padding:24px;
+    background:radial-gradient(900px 520px at 50% -10%, rgba(207,178,124,.08), transparent 65%), var(--bg);
+    color:var(--text); font-family:'Cairo','Poppins',sans-serif;
+    min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:72px 20px 28px; -webkit-font-smoothing:antialiased;
   }
   html[lang=en] body{font-family:'Poppins','Cairo',sans-serif}
-  .lang-toggle{
-    position:fixed; top:16px; inset-inline-end:16px;
-    display:flex; border:1px solid var(--line); border-radius:20px; overflow:hidden;
-  }
-  .lang-toggle button{
-    background:transparent; border:none; color:var(--muted);
-    font-family:'Poppins',sans-serif; font-size:.75rem; letter-spacing:.05em;
-    padding:6px 14px; cursor:pointer;
-  }
-  .lang-toggle button.on{background:var(--gold); color:#0a0a0b; font-weight:600}
-  .wordmark{
-    font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em; font-weight:600; letter-spacing:.35em;
-    color:var(--gold); font-size:1.35rem; text-transform:uppercase;
-    margin-bottom:6px;
-  }
-  .tagline{color:var(--muted); font-size:.78rem; letter-spacing:.08em; margin-bottom:44px; text-align:center}
+  .lang-toggle{position:fixed; top:16px; inset-inline-end:16px; display:flex; border:1px solid var(--line2); border-radius:20px; overflow:hidden}
+  .lang-toggle button{background:transparent; border:none; color:var(--muted); font-family:'Poppins',sans-serif; font-size:.74rem; letter-spacing:.06em; padding:7px 15px; cursor:pointer}
+  .lang-toggle button.on{background:var(--gold); color:#14110d; font-weight:600}
+  .logo{height:30px; margin-bottom:12px}
+  .tagline{font-family:var(--serif); font-style:italic; color:var(--muted); font-size:.86rem; margin-bottom:36px; text-align:center; direction:ltr}
   .card{
-    width:100%; max-width:380px; background:var(--panel);
-    border:1px solid var(--line); border-radius:18px; padding:32px 26px;
-    text-align:center;
+    width:100%; max-width:390px; background:var(--panel); border:1px solid var(--line2);
+    border-radius:22px; padding:34px 26px 28px; text-align:center; position:relative;
   }
-  h1{font-size:1.15rem; font-weight:600; margin-bottom:6px}
-  .sub{color:var(--muted); font-size:.85rem; margin-bottom:26px}
-  input[type=tel]{
-    width:100%; padding:15px 16px; border-radius:12px;
-    border:1px solid var(--line); background:var(--bg); color:var(--text);
-    font-family:inherit; font-size:1.15rem; text-align:center;
-    letter-spacing:.12em; direction:ltr; outline:none;
-    transition:border-color .2s;
+  .card::before{content:''; position:absolute; top:-1px; left:50%; transform:translateX(-50%); width:44px; height:2px; background:var(--gold); border-radius:2px}
+  .eyebrow{font-family:'Poppins',sans-serif; font-size:.68rem; font-weight:500; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:10px}
+  h1{font-family:var(--serif); font-weight:500; font-size:1.7rem; line-height:1.2; margin-bottom:8px}
+  html[lang=ar] h1{font-family:'Cairo',sans-serif; font-weight:700; font-size:1.5rem}
+  .sub{color:var(--muted); font-size:.9rem; line-height:1.6; margin-bottom:24px}
+  .key{
+    width:100%; padding:16px; border-radius:14px; border:1px solid var(--line2); background:var(--bg); color:var(--text);
+    font-family:'Poppins',sans-serif; font-size:1.3rem; text-align:center; letter-spacing:.16em; direction:ltr; outline:none; transition:border-color .2s;
   }
-  input[type=tel]:focus{border-color:var(--gold)}
+  .key:focus{border-color:var(--gold)}
+  .key::placeholder{color:var(--soft); letter-spacing:.04em; font-size:1rem}
+  .hint{color:var(--soft); font-size:.76rem; margin-top:10px}
   button.action{
-    width:100%; margin-top:16px; padding:15px;
-    border:none; border-radius:12px; cursor:pointer;
-    background:var(--gold); color:#0a0a0b;
-    font-family:inherit; font-size:1.02rem; font-weight:700;
-    transition:opacity .2s;
+    width:100%; margin-top:14px; padding:16px; border:none; border-radius:14px; cursor:pointer;
+    background:var(--gold); color:#14110d; font-family:inherit; font-size:1.02rem; font-weight:700; transition:filter .2s, opacity .2s;
   }
+  button.action:hover{filter:brightness(1.06)}
   button.action:disabled{opacity:.45; cursor:default}
-  .ghost{background:transparent !important; border:1px solid var(--line) !important; color:var(--muted) !important; font-weight:400 !important}
-  .msg{margin-top:18px; font-size:.9rem; min-height:1.4em}
+  .ghost{background:transparent !important; border:1px solid var(--line2) !important; color:var(--muted) !important; font-weight:500 !important}
+  .register{background:transparent !important; color:var(--gold) !important; border:1px solid var(--gold-line) !important; font-weight:600 !important}
+  .msg{margin-top:16px; font-size:.9rem; min-height:1.4em; line-height:1.6}
   .msg.err{color:var(--warn)}
-  .counter{
-    font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.06em; font-size:5.2rem; line-height:1;
-    color:var(--gold); margin:18px 0 4px;
-  }
-  .counter-label{color:var(--muted); font-size:.85rem; letter-spacing:.05em}
-  .greet{font-size:1.25rem; font-weight:600; margin-bottom:2px}
-  .status-ok{color:var(--ok); font-size:.9rem; margin-top:20px}
-  .status-debt{
-    margin-top:20px; padding:12px 14px; border-radius:10px;
-    background:rgba(201,111,94,.12); border:1px solid rgba(201,111,94,.35);
-    color:var(--warn); font-size:.86rem; line-height:1.6;
-  }
-  .low{color:var(--warn)}
-  .spinner{
-    width:26px;height:26px;border:3px solid var(--line);
-    border-top-color:var(--gold);border-radius:50%;
-    margin:14px auto 0;animation:spin .8s linear infinite;
-  }
+  .greet{font-family:var(--serif); font-size:1.6rem; font-weight:500; margin-bottom:4px}
+  html[lang=ar] .greet{font-family:'Cairo',sans-serif; font-weight:700; font-size:1.4rem}
+  .member{display:inline-flex; align-items:center; gap:8px; margin:6px 0 18px; padding:5px 14px; border:1px solid var(--gold-line); border-radius:20px; font-size:.78rem; color:var(--muted)}
+  .member b{font-family:'Poppins',sans-serif; color:var(--gold); letter-spacing:.14em; font-weight:600; direction:ltr}
+  .counter{font-family:var(--serif); font-weight:500; font-size:5.4rem; line-height:1; color:var(--gold); margin:14px 0 6px}
+  .counter.low{color:var(--warn)}
+  .counter-label{color:var(--muted); font-size:.86rem; letter-spacing:.03em}
+  .status-ok{color:var(--ok); font-size:.92rem; margin-top:18px}
+  .status-debt{margin-top:18px; padding:13px 15px; border-radius:12px; background:var(--warn-soft); border:1px solid rgba(227,150,127,.35); color:var(--warn); font-size:.86rem; line-height:1.6}
+  .tip{margin-top:18px; padding:12px 14px; border-radius:12px; background:var(--gold-soft); border:1px solid var(--gold-line); font-size:.84rem; line-height:1.6; color:var(--text)}
+  .tip b{color:var(--gold); letter-spacing:.14em; font-family:'Poppins',sans-serif; direction:ltr; display:inline-block}
+  .spinner{width:24px;height:24px;border:2.5px solid var(--line2);border-top-color:var(--gold);border-radius:50%;margin:16px auto 0;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){.spinner{animation-duration:2s}}
-  button.register{
-    background:transparent; color:var(--gold);
-    border:1.5px solid var(--gold);
-    font-weight:600;
-  }
-  button.register:active{background:rgba(212,233,108,.08)}
-  .renew{
-    margin-top:26px; padding:20px 18px 16px; border-radius:14px;
-    background:linear-gradient(180deg, rgba(212,233,108,.05), rgba(212,233,108,.015));
-    border:1px solid rgba(212,233,108,.22); text-align:center;
-  }
-  .renew-line{width:26px;height:2px;background:var(--gold);margin:0 auto 14px;border-radius:2px}
-  .renew-title{font-weight:600;font-size:.98rem;margin-bottom:4px}
-  .renew-body{color:var(--muted);font-size:.84rem;margin-bottom:16px;line-height:1.6}
-  .renew-pay{
-    display:flex;flex-direction:column;gap:2px;align-items:center;width:100%;
-    padding:13px;border-radius:12px;cursor:pointer;
-    background:var(--bg);border:1px solid rgba(212,233,108,.35);
-    font-family:inherit;transition:border-color .2s;
-  }
-  .renew-pay:active{border-color:var(--gold)}
-  .renew-pay-label{color:var(--gold);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
-  .renew-pay-number{color:var(--text);font-size:1.35rem;letter-spacing:.14em;font-weight:600;direction:ltr}
-  .renew-hint{color:var(--muted);font-size:.72rem;margin-top:10px;min-height:1em}
-  .hist-valid{color:var(--gold);font-size:.8rem;margin-top:8px;letter-spacing:.03em}
-  .hist-list{margin:20px 0 4px;max-height:34vh;overflow:auto;text-align:start}
-  .hist-row{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:10px 4px;border-bottom:1px solid var(--line);
-    font-size:.88rem;
-  }
+  .renew{margin-top:24px; padding:20px 18px 16px; border-radius:16px; background:var(--panel2); border:1px solid var(--gold-line); text-align:center}
+  .renew-title{font-weight:600; font-size:1rem; margin-bottom:4px}
+  .renew-body{color:var(--muted); font-size:.84rem; margin-bottom:14px; line-height:1.6}
+  .renew-pay{display:flex; flex-direction:column; gap:3px; align-items:center; width:100%; padding:13px; border-radius:12px; cursor:pointer; background:var(--bg); border:1px solid var(--gold-line); font-family:inherit; color:inherit}
+  .renew-pay-label{color:var(--gold); font-size:.66rem; letter-spacing:.24em; text-transform:uppercase; font-weight:600; font-family:'Poppins',sans-serif}
+  .renew-pay-number{color:var(--text); font-size:1.32rem; letter-spacing:.14em; font-weight:600; direction:ltr; font-family:'Poppins',sans-serif}
+  .renew-hint{color:var(--soft); font-size:.74rem; margin-top:10px; min-height:1em}
+  .hist-valid{color:var(--gold); font-size:.82rem; margin-top:8px}
+  .hist-list{margin:20px 0 4px; max-height:34vh; overflow:auto; text-align:start}
+  .hist-row{display:flex; justify-content:space-between; align-items:center; padding:11px 4px; border-bottom:1px solid var(--line); font-size:.9rem}
   .hist-row:last-child{border-bottom:none}
-  .hist-row .n{color:var(--muted);font-size:.75rem}
-  .hist-rule{
-    color:var(--muted);font-size:.74rem;line-height:1.7;margin-top:14px;
-    padding-top:14px;border-top:1px solid var(--line);
-  }
-  .hidden{display:none}
-  footer{margin-top:36px;color:var(--muted);font-size:.7rem;letter-spacing:.15em;font-family:'Poppins',sans-serif}
+  .hist-row .n{color:var(--soft); font-size:.76rem; font-family:'Poppins',sans-serif}
+  .hist-rule{color:var(--muted); font-size:.76rem; line-height:1.7; margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
+  .hidden{display:none !important}
+  footer{margin-top:30px; color:var(--soft); font-size:.68rem; letter-spacing:.2em; font-family:'Poppins',sans-serif; text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -133,16 +93,18 @@
   <button id="langEn">EN</button>
 </div>
 
-<img src="./logo.png" alt="KRAFT" style="height:34px;margin-bottom:10px">
+<img class="logo" src="./logo-gold.png" alt="KRAFT">
 <div class="tagline">Fix the root cause. Build the body. Perform for life.</div>
 
 <div class="card">
 
-  <!-- STEP 1: phone -->
+  <!-- STEP 1: member ID or phone -->
   <div id="stepPhone">
+    <div class="eyebrow" data-i18n="eyebrow"></div>
     <h1 data-i18n="title"></h1>
     <p class="sub" data-i18n="subtitle"></p>
-    <input type="tel" id="phone" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11" autocomplete="tel">
+    <input class="key" type="tel" id="phone" inputmode="numeric" data-i18n-ph="keyPh" maxlength="11" autocomplete="off">
+    <p class="hint" data-i18n="keyHint"></p>
     <button class="action" id="btnLookup" data-i18n="continue"></button>
     <button class="action register" id="btnRegister" data-i18n="registerBtn"></button>
     <p class="msg" id="msgPhone"></p>
@@ -151,6 +113,7 @@
   <!-- STEP 2: confirm -->
   <div id="stepConfirm" class="hidden">
     <p class="greet" id="confirmName"></p>
+    <div class="member hidden" id="confirmMember"><span data-i18n="memberLabel"></span><b id="confirmMemberNo"></b></div>
     <p class="sub" id="confirmInfo"></p>
     <button class="action" id="btnCheckin" data-i18n="confirm"></button>
     <button class="action ghost" id="btnHist1" data-i18n="histBtn"></button>
@@ -160,9 +123,10 @@
 
   <!-- STEP R: register -->
   <div id="stepReg" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrowNew"></div>
     <h1 data-i18n="regTitle"></h1>
     <p class="sub" data-i18n="regSub"></p>
-    <input type="text" id="regName" data-i18n-ph="namePh" autocomplete="name" style="width:100%;padding:15px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:1.05rem;text-align:center;outline:none;margin-bottom:4px">
+    <input type="text" id="regName" class="key" data-i18n-ph="namePh" autocomplete="name" style="letter-spacing:.02em;font-size:1.1rem">
     <button class="action" id="btnRegSend" data-i18n="regSend"></button>
     <button class="action ghost" id="btnRegBack" data-i18n="notMe"></button>
     <p class="msg" id="msgReg"></p>
@@ -171,7 +135,7 @@
   <!-- STEP R2: registered -->
   <div id="stepRegDone" class="hidden">
     <p class="greet" data-i18n="regDone"></p>
-    <p class="sub" data-i18n="regDoneSub" style="margin-top:10px;line-height:1.7"></p>
+    <p class="sub" data-i18n="regDoneSub" style="margin-top:10px"></p>
   </div>
 
   <!-- STEP 3: done -->
@@ -183,11 +147,11 @@
     </div>
     <p class="status-ok hidden" id="doneOk"></p>
     <div class="status-debt hidden" id="doneDebt"></div>
+    <div class="tip hidden" id="doneTip"></div>
 
     <button class="action ghost" id="btnHist2" data-i18n="histBtn" style="margin-top:22px"></button>
 
     <div class="renew hidden" id="renewCard">
-      <div class="renew-line"></div>
       <p class="renew-title" id="renewTitle"></p>
       <p class="renew-body" id="renewBody"></p>
       <button class="renew-pay" id="renewPay">
@@ -200,12 +164,11 @@
 
   <!-- STEP H: my attendance -->
   <div id="stepHist" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrowHist"></div>
     <h1 data-i18n="histTitle"></h1>
-    <div class="hist-summary">
-      <div class="counter" id="histRemaining" style="font-size:3.4rem;margin:10px 0 2px">0</div>
-      <div class="counter-label" id="histOf"></div>
-      <div class="hist-valid" id="histValid"></div>
-    </div>
+    <div class="counter" id="histRemaining" style="font-size:3.6rem;margin:10px 0 4px">0</div>
+    <div class="counter-label" id="histOf"></div>
+    <div class="hist-valid" id="histValid"></div>
     <div class="hist-list" id="histList"></div>
     <p class="hist-rule" data-i18n="histRule"></p>
     <button class="action ghost" id="btnHistBack" data-i18n="histBack"></button>
@@ -214,22 +177,25 @@
   <div class="spinner hidden" id="spin"></div>
 </div>
 
-<footer>KRAFT FITNESS · GANAKLIS, ALEXANDRIA</footer>
+<footer>Kraft Fitness · Ganaklis, Alexandria</footer>
 
 <script>
-/* ====== CONFIG — fill these two values from Supabase → Settings → API ====== */
+/* ====== CONFIG ====== */
 const SUPABASE_URL = "https://gndbfxwjcumkftbultkt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_e2x7PPQQ4iO71ZoyyZk_6A_b_FLKIdu";
-/* =========================================================================== */
+/* ==================== */
 
-/* ---------- translations ---------- */
 const T = {
   ar: {
-    title:'تسجيل الحضور',
-    subtitle:'اكتب رقم موبايلك المسجّل عندنا',
+    eyebrow:'تسجيل الحضور', eyebrowNew:'عضو جديد', eyebrowHist:'باقتك',
+    title:'أهلاً بيك في KRAFT',
+    subtitle:'اكتب رقم العضوية أو رقم موبايلك المسجّل',
+    keyPh:'رقم العضوية أو الموبايل',
+    keyHint:'رقم العضوية 4 أرقام · الموبايل 11 رقم',
     continue:'متابعة',
     confirm:'تأكيد الحضور',
     notMe:'مش أنا — رجوع',
+    memberLabel:'رقم العضوية',
     remainingLabel:'حصص متبقية في باقتك',
     hello:n=>'أهلاً، '+n,
     remainingInfo:r=>'باقتك فيها '+r+' حصص متبقية',
@@ -237,11 +203,13 @@ const T = {
     alreadyToday:'إنت مسجّل حضورك النهارده بالفعل ✓',
     checkedOk:'✓ تم تسجيل حضورك — تمرين موفق',
     debtMsg:'باقتك اكتملت — حضور النهارده متسجّل. للتجديد: فريق KRAFT في الجيم أو InstaPay.',
-    invalidPhone:'اكتب رقم صحيح مكوّن من 11 رقم',
-    notFound:'الرقم مش مسجّل عندنا',
+    invalidKey:'اكتب رقم العضوية (4 أرقام) أو موبايل من 11 رقم',
+    phoneOnly:'استخدم رقم موبايلك حالياً',
+    notFound:'الرقم ده مش مسجّل عندنا',
     connErr:'حصلت مشكلة في الاتصال — جرّب تاني',
     genErr:'حصلت مشكلة — كلّم فريق KRAFT',
     registerBtn:'أول مرة؟ سجّل معانا',
+    regNeedsPhone:'للتسجيل اكتب رقم موبايلك (11 رقم)',
     regTitle:'تسجيل جديد',
     regSub:'اكتب اسمك بالكامل وهيتم تفعيل حسابك من فريق KRAFT',
     namePh:'الاسم بالكامل',
@@ -249,8 +217,9 @@ const T = {
     regDone:'تم استلام تسجيلك ✓',
     regDoneSub:'فريق KRAFT هيفعّل حسابك ويظبط باقتك — أهلاً بيك في KRAFT',
     regExists:'الرقم ده مسجّل بالفعل',
-    regInvalid:'اكتب الاسم بالكامل ورقم صحيح',
+    regInvalid:'اكتب الاسم بالكامل',
     pendingMsg:'تسجيلك واصل ✓ — في انتظار التفعيل من فريق KRAFT',
+    tip:n=>'المرة الجاية سجّل أسرع برقم العضوية: <b>'+n+'</b>',
     renewLast:'دي آخر حصة في باقتك',
     renewOne:'فاضل لك حصة واحدة',
     renewDone:'باقتك اكتملت — حضور النهارده متسجّل',
@@ -260,20 +229,23 @@ const T = {
     renewCopied:'تم نسخ الرقم ✓',
     histBtn:'سجل حضوري',
     histTitle:'سجل الحضور',
-    histRemaining:'حصص متبقية',
-    histOf:(r,t)=>r+' من '+t+' حصص',
+    histOf:(r,t)=>r+' من '+t+' حصص متبقية',
     histValidUntil:d=>'الباقة صالحة حتى '+d,
     histNoPkg:'لا توجد باقة نشطة حالياً',
     histEmpty:'لا يوجد حضور مسجّل بعد',
-    histRule:'الباقة صالحة لمدة 30 يوم من تاريخ الدفع أو حتى انتهاء الحصص — أيهما أقرب.',
+    histRule:'الباقة صالحة لمدة 30 يوم من تاريخ الدفع أو حتى انتهاء الحصص — أيهما أقرب. الحصص غير المستخدمة لا تُرحَّل للباقة الجديدة.',
     histBack:'رجوع',
   },
   en: {
-    title:'Check-in',
-    subtitle:'Enter your registered phone number',
+    eyebrow:'Check-in', eyebrowNew:'New member', eyebrowHist:'Your package',
+    title:'Welcome to KRAFT',
+    subtitle:'Enter your member ID or registered phone number',
+    keyPh:'Member ID or phone',
+    keyHint:'Member ID: 4 digits · Phone: 11 digits',
     continue:'Continue',
     confirm:'Confirm check-in',
     notMe:'Not me — back',
+    memberLabel:'Member ID',
     remainingLabel:'Sessions left in your package',
     hello:n=>'Hello, '+n,
     remainingInfo:r=>'Your package has '+r+' sessions left',
@@ -281,11 +253,13 @@ const T = {
     alreadyToday:'You are already checked in today ✓',
     checkedOk:'✓ Checked in — have a great session',
     debtMsg:'Your package is complete — today is logged. To renew: the KRAFT team at the gym, or InstaPay.',
-    invalidPhone:'Enter a valid 11-digit number',
-    notFound:'This number is not registered yet',
+    invalidKey:'Enter your 4-digit member ID or 11-digit phone number',
+    phoneOnly:'Please use your phone number for now',
+    notFound:'This ID or number is not registered yet',
     connErr:'Connection problem — try again',
     genErr:'Something went wrong — please tell the KRAFT team',
     registerBtn:'First time? Register',
+    regNeedsPhone:'To register, enter your 11-digit phone number',
     regTitle:'New registration',
     regSub:'Enter your full name — the KRAFT team will activate your account',
     namePh:'Full name',
@@ -293,8 +267,9 @@ const T = {
     regDone:'Registration received ✓',
     regDoneSub:'The KRAFT team will activate your account and set up your package — welcome to KRAFT',
     regExists:'This number is already registered',
-    regInvalid:'Enter your full name and a valid number',
+    regInvalid:'Enter your full name',
     pendingMsg:'Registration received ✓ — awaiting activation by the KRAFT team',
+    tip:n=>'Next time, check in faster with your member ID: <b>'+n+'</b>',
     renewLast:'This was the last session in your package',
     renewOne:'One session left in your package',
     renewDone:'Your package is complete — today is logged',
@@ -304,28 +279,22 @@ const T = {
     renewCopied:'Number copied ✓',
     histBtn:'My attendance',
     histTitle:'My attendance',
-    histRemaining:'Sessions remaining',
-    histOf:(r,t)=>r+' of '+t+' sessions',
+    histOf:(r,t)=>r+' of '+t+' sessions left',
     histValidUntil:d=>'Package valid until '+d,
     histNoPkg:'No active package at the moment',
     histEmpty:'No attendance recorded yet',
-    histRule:'Your package is valid for 30 days from the payment date, or until all sessions are used — whichever comes first.',
+    histRule:'Your package lasts 30 days from the payment date, or until all sessions are used, whichever comes first. Unused sessions don’t carry over to a new package.',
     histBack:'Back',
   }
 };
 
 let lang = localStorage.getItem('kraft_lang') || 'en';
 const t = key => T[lang][key];
-
 function applyLang(){
   document.documentElement.lang = lang;
   document.documentElement.dir = (lang==='ar') ? 'rtl' : 'ltr';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    el.textContent = T[lang][el.dataset.i18n];
-  });
-  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
-    el.placeholder = T[lang][el.dataset.i18nPh];
-  });
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = T[lang][el.dataset.i18n]; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = T[lang][el.dataset.i18nPh]; });
   document.getElementById('langAr').classList.toggle('on', lang==='ar');
   document.getElementById('langEn').classList.toggle('on', lang==='en');
 }
@@ -333,72 +302,73 @@ document.getElementById('langAr').onclick = ()=>{ lang='ar'; localStorage.setIte
 document.getElementById('langEn').onclick = ()=>{ lang='en'; localStorage.setItem('kraft_lang','en'); applyLang(); };
 applyLang();
 
-/* ---------- app ---------- */
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 const show = (el,on=true)=>el.classList.toggle('hidden',!on);
-let currentPhone = "";
+const isPhone = k => /^01\d{9}$/.test(k);
+const isId = k => /^\d{4}$/.test(k);
+let currentKey = '';
+let keyMode = true; // false if the member-ID functions aren't installed yet: falls back to phone only
 
-const saved = localStorage.getItem('kraft_phone');
+const saved = localStorage.getItem('kraft_key') || localStorage.getItem('kraft_phone');
 if (saved) $('phone').value = saved;
 
-$('btnLookup').onclick = async () => {
-  const phone = $('phone').value.replace(/\D/g,'');
-  $('msgPhone').textContent = '';
-  if (!/^01\d{9}$/.test(phone)) {
-    $('msgPhone').textContent = t('invalidPhone');
-    $('msgPhone').className = 'msg err';
-    return;
+/* Calls the member-ID function if installed, otherwise the original phone function */
+async function call(name, key){
+  if (keyMode){
+    const { data, error } = await db.rpc(name + '_key', { p_key: key });
+    if (!error) return data;
+    if (error.code !== 'PGRST202') throw error;
+    keyMode = false;
   }
+  if (!isPhone(key)) return { __phoneOnly: true };
+  const { data, error } = await db.rpc(name, { p_phone: key });
+  if (error) throw error;
+  return data;
+}
+function setMember(wrapId, noId, n){
+  if (n){ $(noId).textContent = n; show($(wrapId), true); } else show($(wrapId), false);
+}
+
+$('btnLookup').onclick = async () => {
+  const key = $('phone').value.replace(/\D/g,'');
+  $('msgPhone').textContent = '';
+  if (!isPhone(key) && !isId(key)) { $('msgPhone').textContent = t('invalidKey'); $('msgPhone').className = 'msg err'; return; }
   busy(true, 'btnLookup');
   try {
-    const { data, error } = await db.rpc('kraft_lookup', { p_phone: phone });
-    if (error) throw error;
-    if (!data.found) {
-      currentPhone = phone;
-      $('msgPhone').textContent = t('notFound');
-      $('msgPhone').className = 'msg err';
-      return;
-    }
-    if (data.pending) {
-      $('msgPhone').textContent = t('pendingMsg');
-      $('msgPhone').className = 'msg';
-      return;
-    }
-    currentPhone = phone;
-    localStorage.setItem('kraft_phone', phone);
+    const data = await call('kraft_lookup', key);
+    if (data.__phoneOnly) { $('msgPhone').textContent = t('phoneOnly'); $('msgPhone').className = 'msg err'; return; }
+    if (!data.found) { currentKey = key; $('msgPhone').textContent = t('notFound'); $('msgPhone').className = 'msg err'; return; }
+    if (data.pending) { $('msgPhone').textContent = t('pendingMsg'); $('msgPhone').className = 'msg'; return; }
+    currentKey = key;
+    localStorage.setItem('kraft_key', key);
     $('confirmName').textContent = t('hello')(data.first_name);
+    setMember('confirmMember', 'confirmMemberNo', data.member_no);
     if (data.already_today) {
       $('confirmInfo').textContent = t('alreadyToday');
       $('btnCheckin').classList.add('hidden');
     } else {
-      $('confirmInfo').textContent =
-        data.remaining > 0 ? t('remainingInfo')(data.remaining) : t('expiredInfo');
+      $('confirmInfo').textContent = data.remaining > 0 ? t('remainingInfo')(data.remaining) : t('expiredInfo');
       $('btnCheckin').classList.remove('hidden');
     }
-    show($('stepPhone'), false);
-    show($('stepConfirm'), true);
+    show($('stepPhone'), false); show($('stepConfirm'), true);
   } catch(e) {
-    $('msgPhone').textContent = t('connErr');
-    $('msgPhone').className = 'msg err';
+    $('msgPhone').textContent = t('connErr'); $('msgPhone').className = 'msg err';
   } finally { busy(false, 'btnLookup'); }
 };
 
 $('btnBack').onclick = () => {
-  localStorage.removeItem('kraft_phone');
+  localStorage.removeItem('kraft_key'); localStorage.removeItem('kraft_phone');
   $('phone').value = '';
-  show($('stepConfirm'), false);
-  show($('stepPhone'), true);
+  show($('stepConfirm'), false); show($('stepPhone'), true);
 };
 
 $('btnCheckin').onclick = async () => {
   busy(true, 'btnCheckin');
   try {
-    const { data, error } = await db.rpc('kraft_checkin', { p_phone: currentPhone });
-    if (error) throw error;
+    const data = await call('kraft_checkin', currentKey);
     if (!data.ok) {
-      $('msgConfirm').textContent =
-        data.reason === 'already_today' ? t('alreadyToday') : t('genErr');
+      $('msgConfirm').textContent = data.reason === 'already_today' ? t('alreadyToday') : t('genErr');
       $('msgConfirm').className = 'msg err';
       return;
     }
@@ -409,60 +379,41 @@ $('btnCheckin').onclick = async () => {
       renewKey = data.expired ? 'renewExpired' : 'renewDone';
     } else {
       $('doneCounter').textContent = data.remaining;
-      if (data.remaining <= 2) $('doneCounter').classList.add('low');
-      $('doneOk').textContent = t('checkedOk');
-      show($('doneOk'), true);
+      $('doneCounter').classList.toggle('low', data.remaining <= 2);
+      $('doneOk').textContent = t('checkedOk'); show($('doneOk'), true);
       if (data.remaining === 0) renewKey = 'renewLast';
       else if (data.remaining === 1) renewKey = 'renewOne';
     }
+    if (data.member_no && isPhone(currentKey)) { $('doneTip').innerHTML = t('tip')(data.member_no); show($('doneTip'), true); }
     if (renewKey) {
-      $('renewTitle').textContent = t(renewKey);
-      $('renewBody').textContent = t('renewBody');
-      $('renewHint').textContent = t('renewCopy');
+      $('renewTitle').textContent = t(renewKey); $('renewBody').textContent = t('renewBody'); $('renewHint').textContent = t('renewCopy');
       show($('renewCard'), true);
     }
-    show($('stepConfirm'), false);
-    show($('stepDone'), true);
+    show($('stepConfirm'), false); show($('stepDone'), true);
   } catch(e) {
-    $('msgConfirm').textContent = t('connErr');
-    $('msgConfirm').className = 'msg err';
+    $('msgConfirm').textContent = t('connErr'); $('msgConfirm').className = 'msg err';
   } finally { busy(false, 'btnCheckin'); }
 };
 
 $('btnRegister').onclick = () => {
   const phone = $('phone').value.replace(/\D/g,'');
-  if (!/^01\d{9}$/.test(phone)) {
-    $('msgPhone').textContent = t('invalidPhone');
-    $('msgPhone').className = 'msg err';
-    return;
-  }
-  currentPhone = phone;
-  $('msgPhone').textContent='';
-  show($('stepPhone'), false);
-  show($('stepReg'), true);
-  $('msgReg').textContent='';
+  if (!isPhone(phone)) { $('msgPhone').textContent = t('regNeedsPhone'); $('msgPhone').className = 'msg err'; return; }
+  currentKey = phone; $('msgPhone').textContent='';
+  show($('stepPhone'), false); show($('stepReg'), true); $('msgReg').textContent='';
 };
 $('btnRegBack').onclick = () => {
-  show($('stepReg'), false);
-  show($('stepPhone'), true);
-  $('btnRegister').classList.add('hidden');
-  $('msgPhone').textContent='';
+  show($('stepReg'), false); show($('stepPhone'), true); $('msgPhone').textContent='';
 };
 $('btnRegSend').onclick = async () => {
   const name = $('regName').value.trim();
   if (name.length < 3) { $('msgReg').textContent = t('regInvalid'); $('msgReg').className='msg err'; return; }
   busy(true,'btnRegSend');
   try {
-    const { data, error } = await db.rpc('kraft_register', { p_name: name, p_phone: currentPhone });
+    const { data, error } = await db.rpc('kraft_register', { p_name: name, p_phone: currentKey });
     if (error) throw error;
-    if (!data.ok) {
-      $('msgReg').textContent = data.reason==='exists' ? t('regExists') : t('regInvalid');
-      $('msgReg').className='msg err';
-      return;
-    }
-    localStorage.setItem('kraft_phone', currentPhone);
-    show($('stepReg'), false);
-    show($('stepRegDone'), true);
+    if (!data.ok) { $('msgReg').textContent = data.reason==='exists' ? t('regExists') : t('regInvalid'); $('msgReg').className='msg err'; return; }
+    localStorage.setItem('kraft_key', currentKey);
+    show($('stepReg'), false); show($('stepRegDone'), true);
   } catch(e) {
     $('msgReg').textContent = t('connErr'); $('msgReg').className='msg err';
   } finally { busy(false,'btnRegSend'); }
@@ -479,10 +430,10 @@ $('renewPay').onclick = async () => {
 let histFrom = 'stepConfirm';
 async function openHistory(fromStep){
   histFrom = fromStep;
-  busy(true, fromStep==='stepConfirm' ? 'btnHist1' : 'btnHist2');
+  const btn = fromStep==='stepConfirm' ? 'btnHist1' : 'btnHist2';
+  busy(true, btn);
   try {
-    const { data, error } = await db.rpc('kraft_history', { p_phone: currentPhone });
-    if (error) throw error;
+    const data = await call('kraft_history', currentKey);
     if (!data.found) return;
     $('histRemaining').textContent = data.remaining;
     $('histRemaining').classList.toggle('low', data.remaining <= 2);
@@ -499,18 +450,14 @@ async function openHistory(fromStep){
       box.insertAdjacentHTML('beforeend',
         `<div class="hist-row"><span>${d.toLocaleDateString(lang==='ar'?'ar-EG':'en-GB',{weekday:'long',day:'numeric',month:'long'})}</span><span class="n">${dates.length-i}</span></div>`);
     });
-    show($(histFrom), false);
-    show($('stepHist'), true);
-  } catch(e) {} finally { busy(false, fromStep==='stepConfirm' ? 'btnHist1' : 'btnHist2'); }
+    show($(histFrom), false); show($('stepHist'), true);
+  } catch(e) {} finally { busy(false, btn); }
 }
 $('btnHist1').onclick = ()=>openHistory('stepConfirm');
 $('btnHist2').onclick = ()=>openHistory('stepDone');
 $('btnHistBack').onclick = ()=>{ show($('stepHist'), false); show($(histFrom), true); };
 
-function busy(on, btnId){
-  show($('spin'), on);
-  $(btnId).disabled = on;
-}
+function busy(on, btnId){ show($('spin'), on); $(btnId).disabled = on; }
 </script>
 </body>
 </html>
