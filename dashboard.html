@@ -51,11 +51,11 @@
   h2 .count{font-family:'Poppins',sans-serif;font-size:.78rem;color:var(--gold);border:1px solid var(--gold-line);border-radius:20px;padding:1px 9px;margin-left:8px;vertical-align:3px}
 
   /* hero */
-  .hero{display:grid;grid-template-columns:1.1fr 2fr;gap:12px}
+  .hero{display:grid;grid-template-columns:1fr 2.4fr;gap:12px}
   .today{background:var(--panel);border:1px solid var(--gold-line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center}
   .today b{font-family:var(--serif);font-weight:500;font-size:4rem;line-height:1;color:var(--gold);margin:10px 0 4px}
   .today span.s{font-size:.82rem;color:var(--muted)}
-  .minis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .minis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
   .mini{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:flex-end}
   .mini b{font-family:var(--serif);font-weight:500;font-size:2rem;line-height:1}
   .mini span{font-size:.74rem;color:var(--muted);margin-top:6px;line-height:1.4}
@@ -112,6 +112,16 @@
   dialog .dsub{font-size:.8rem;color:var(--muted);margin-bottom:16px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
   .grid2 .full{grid-column:1/-1}
+  .grid2 label{min-width:0;display:block}
+  .grid2 input,.grid2 select{min-width:0;max-width:100%}
+  dialog{max-height:92dvh;overflow:auto}
+  .pays{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+  .pay{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--muted)}
+  .pay b{font-weight:500;color:var(--text)}
+  .pay button{background:none;border:none;color:var(--soft);cursor:pointer;font-size:.8rem;padding:0 4px}
+  .pay button:hover{color:var(--warn)}
+  .owed{color:var(--warn)} .paidok{color:var(--ok)}
+  .row-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
   .fl{font-size:.7rem;color:var(--muted);letter-spacing:.06em;margin:2px 0 5px;display:block}
   .check{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);margin:2px 0 12px}
   .check input{width:auto;margin:0;accent-color:var(--gold)}
@@ -122,7 +132,7 @@
     .hero{grid-template-columns:1fr}
     .today{flex-direction:row;align-items:baseline;gap:12px}
     .today b{font-size:3.2rem;margin:0}
-    .minis{grid-template-columns:repeat(3,1fr)}
+    .minis{grid-template-columns:repeat(2,1fr)}
     .mini{padding:14px}
     .mini b{font-size:1.6rem}
     .bars{gap:3px;padding:12px 8px 8px}
@@ -166,6 +176,7 @@
       <div class="minis">
         <div class="mini"><b id="nWeek">0</b><span>Check-ins<br>last 7 days</span></div>
         <div class="mini"><b id="nActive">0</b><span>Members with<br>an active package</span></div>
+        <div class="mini"><b id="nMonth">0</b><span>EGP collected<br><span id="monthLbl">this month</span></span></div>
         <div class="mini" id="debtBox"><b id="nDebt">0</b><span>Sessions owed<br>(no package)</span></div>
       </div>
     </section>
@@ -181,6 +192,7 @@
         <button class="tab on" data-tab="almost">Almost finishing<b id="tAlmost">0</b></button>
         <button class="tab" data-tab="away">Away 7+ days<b id="tAway">0</b></button>
         <button class="tab" data-tab="ended">Ended, not renewed<b id="tEnded">0</b></button>
+        <button class="tab" data-tab="unpaid">Not paid<b id="tUnpaid">0</b></button>
       </div>
       <div class="list" id="attnList"></div>
     </section>
@@ -250,12 +262,44 @@
     <label><span class="fl">Price (EGP)</span><input id="pPrice" type="number" min="0" inputmode="numeric"></label>
     <label class="full"><span class="fl">Ends on</span><input id="pExpiry" type="date"></label>
     <label class="full"><span class="fl">Payment</span>
-      <select id="pMethod"><option value="cash">Paid · Cash</option><option value="instapay">Paid · InstaPay</option><option value="unpaid">Not paid yet</option></select></label>
+      <select id="pMethod"><option value="cash">Paid in full · Cash</option><option value="instapay">Paid in full · InstaPay</option><option value="part">Part paid now (split)</option><option value="unpaid">Not paid yet</option></select></label>
+    <label id="pPartWrap" class="hidden"><span class="fl">Paid now (EGP)</span><input id="pPartAmt" type="number" min="0" inputmode="numeric"></label>
+    <label id="pPartMWrap" class="hidden"><span class="fl">Paid by</span><select id="pPartMethod"><option value="cash">Cash</option><option value="instapay">InstaPay</option></select></label>
   </div>
   <p class="summary" id="pSummary"></p>
   <button class="btn" id="btnSavePkg">Save package</button>
   <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgPkg.close()">Cancel</button>
   <p class="err" id="pkgErr"></p>
+</dialog>
+
+<!-- ADD PAYMENT -->
+<dialog id="dlgPay">
+  <h3 id="payTitle">Add payment</h3>
+  <p class="dsub" id="paySub"></p>
+  <div class="grid2">
+    <label><span class="fl">Amount (EGP)</span><input id="payAmt" type="number" min="1" inputmode="numeric"></label>
+    <label><span class="fl">Paid by</span><select id="payMethod"><option value="cash">Cash</option><option value="instapay">InstaPay</option></select></label>
+    <label class="full"><span class="fl">Date</span><input id="payDate" type="date"></label>
+  </div>
+  <button class="btn" id="btnSavePay">Save payment</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgPay.close()">Cancel</button>
+  <p class="err" id="payErr"></p>
+</dialog>
+
+<!-- EDIT PACKAGE -->
+<dialog id="dlgEditPkg">
+  <h3>Edit package</h3>
+  <p class="dsub" id="epSub"></p>
+  <div class="grid2">
+    <label class="full"><span class="fl">Package name</span><input id="epName"></label>
+    <label><span class="fl">Sessions</span><input id="epSessions" type="number" min="1" inputmode="numeric"></label>
+    <label><span class="fl">Price (EGP)</span><input id="epPrice" type="number" min="0" inputmode="numeric"></label>
+    <label><span class="fl">Started</span><input id="epStart" type="date"></label>
+    <label><span class="fl">Ends on</span><input id="epEnd" type="date"></label>
+  </div>
+  <button class="btn" id="btnSaveEp">Save package</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="dlgEditPkg.close()">Cancel</button>
+  <p class="err" id="epErr"></p>
 </dialog>
 
 <!-- MANAGE PACKAGES -->
@@ -285,7 +329,8 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 const show = (el,on=true)=>el.classList.toggle('hidden',!on);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let clients = [], packages = [], attendance = [], pkgClientId = null, attnTab = 'almost', newClientId = null;
+const T_PKG = 'kraft_packages', T_PAY = 'kraft_payments';
+let clients = [], packages = [], attendance = [], payments = [], pkgClientId = null, attnTab = 'almost', newClientId = null, manageId = null;
 
 /* ---------- dates in Cairo time ---------- */
 const ymd = d => new Date(d).toLocaleDateString('en-CA', { timeZone:'Africa/Cairo' });   // YYYY-MM-DD
@@ -294,6 +339,9 @@ const addDays = (s, n) => { const d = new Date(s+'T12:00:00Z'); d.setUTCDate(d.g
 const diffDays = (a, b) => Math.round((new Date(a+'T12:00:00Z') - new Date(b+'T12:00:00Z')) / 864e5); // a - b
 const nice = (s, opts={day:'numeric',month:'short'}) => new Date(s+'T12:00:00Z').toLocaleDateString('en-GB', {...opts, timeZone:'UTC'});
 const niceAr = s => new Date(s+'T12:00:00Z').toLocaleDateString('ar-EG', {day:'numeric',month:'long',timeZone:'UTC'});
+const payDay = y => /^\d{4}-\d{2}-\d{2}$/.test(String(y.paid_at)) ? String(y.paid_at) : ymd(y.paid_at);
+const payStamp = d => d;   // kraft_payments.paid_at is a date
+const egp = n => Number(n||0).toLocaleString('en');
 const timeFmt = d => new Date(d).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Africa/Cairo'});
 
 /* ---------- auth ---------- */
@@ -320,17 +368,19 @@ function enter(){
 
 /* ---------- data ---------- */
 async function loadAll(){
-  const [c,p,a] = await Promise.all([
+  const [c,p,a,pay] = await Promise.all([
     db.from('kraft_clients').select('*').order('full_name'),
     db.from('kraft_packages').select('*'),
     db.from('kraft_attendance').select('*').order('checked_in_at',{ascending:false}).limit(3000),
+    db.from(T_PAY).select('*'),
   ]);
-  clients = c.data||[]; packages = p.data||[]; attendance = a.data||[];
+  clients = c.data||[]; packages = p.data||[]; attendance = a.data||[]; payments = (pay && pay.data)||[];
   render();
 }
 
 const endOf = p => p.expiry_date || (p.start_date ? addDays(String(p.start_date).slice(0,10), VALID_DAYS) : null);
 const usedOf = id => attendance.filter(a=>a.package_id===id).length;
+const paidOf = id => payments.filter(x=>x.package_id===id).reduce((s,x)=>s+Number(x.amount_egp||0),0);
 const isActiveClient = c => c.status==='active' || (!c.status && c.active!==false);
 const pkgName = p => p.package_name || (p.sessions_total + ' sessions');
 
@@ -338,9 +388,9 @@ const pkgName = p => p.package_name || (p.sessions_total + ' sessions');
 function infoFor(c){
   const today = todayStr();
   const pk = packages.filter(p=>p.client_id===c.id).map(p=>{
-    const used = usedOf(p.id), end = endOf(p);
+    const used = usedOf(p.id), end = endOf(p), paid = paidOf(p.id);
     const lastUse = attendance.find(a=>a.package_id===p.id);
-    return { p, used, rem: Math.max(0, p.sessions_total - used), end, inDate: !end || end >= today, lastUse: lastUse ? ymd(lastUse.checked_in_at) : null };
+    return { p, used, paid, owed: Math.max(0, Number(p.price_egp||0) - paid), rem: Math.max(0, p.sessions_total - used), end, inDate: !end || end >= today, lastUse: lastUse ? ymd(lastUse.checked_in_at) : null };
   }).sort((a,b)=> new Date(b.p.created_at) - new Date(a.p.created_at));
   const active = pk.filter(x=>x.inDate && x.rem>0);
   const last = attendance.find(a=>a.client_id===c.id);
@@ -351,9 +401,11 @@ function infoFor(c){
   const latest = pk[0] || null;
   const lastEnd = latest ? (latest.end && latest.end < today ? latest.end : (latest.lastUse || latest.end)) : null;
   const debt = attendance.filter(a=>a.client_id===c.id && a.is_debt).length;
+  const unpaid = pk.filter(x=>x.owed>0 && (x.inDate || !x.end || diffDays(today, x.end) <= 60));
   const ref = [lastVisit, started].filter(Boolean).sort().pop() || null;   // later of last visit and package start
   return {
-    pk, active, left, ends, started, lastVisit, latest, lastEnd, debt,
+    pk, active, left, ends, started, lastVisit, latest, lastEnd, debt, unpaid,
+    owed: unpaid.reduce((s,x)=>s+x.owed,0),
     current: active[0] || null,
     daysAway: ref ? diffDays(today, ref) : null,
     almost: left!==null && (left<=ALMOST_LEFT || (ends && diffDays(ends, today)<=ALMOST_DAYS)),
@@ -371,6 +423,8 @@ function waLink(c, kind, info){
     ? `أهلاً ${first}، باقتك في KRAFT فاضل فيها ${leftAr}${info.ends ? ' وبتنتهي يوم '+niceAr(info.ends) : ''}. تحب أجهزلك التجديد؟`
     : kind==='away'
     ? `أهلاً ${first}، وحشتنا في KRAFT. آخر تمرين ليك كان من ${info.daysAway} يوم، كله تمام؟ مستنيينك.`
+    : kind==='unpaid'
+    ? `أهلاً ${first}، فاضل ${egp(info.owed)} جنيه من باقتك في KRAFT. تقدر تحوّلهم InstaPay على 01501545118 أو كاش في الجيم. شكراً!`
     : `أهلاً ${first}، باقتك في KRAFT انتهت يوم ${niceAr(info.lastEnd)}. تحب أجهزلك باقة جديدة؟`;
   const phone = String(c.phone||'').replace(/\D/g,'');
   return 'https://wa.me/20' + phone.replace(/^0/,'') + '?text=' + encodeURIComponent(msg);
@@ -389,6 +443,9 @@ function render(){
   $('nWeek').textContent = week;
   const debtN = attendance.filter(a=>a.is_debt).length;
   $('nDebt').textContent = debtN; $('debtBox').classList.toggle('warn', debtN>0);
+  const month = today.slice(0,7);
+  $('nMonth').textContent = egp(payments.filter(x=>payDay(x).slice(0,7)===month).reduce((s,x)=>s+Number(x.amount_egp||0),0));
+  $('monthLbl').textContent = 'in ' + nice(today, {month:'long'});
 
   // bars
   const days = []; for (let i=13;i>=0;i--) days.push(addDays(today,-i));
@@ -413,9 +470,10 @@ function render(){
     almost: active.filter(c=>infos.get(c.id).almost).sort((a,b)=> (infos.get(a.id).left - infos.get(b.id).left)),
     away:   active.filter(c=>infos.get(c.id).away).sort((a,b)=> infos.get(b.id).daysAway - infos.get(a.id).daysAway),
     ended:  active.filter(c=>infos.get(c.id).ended).sort((a,b)=> (infos.get(b.id).lastEnd||'').localeCompare(infos.get(a.id).lastEnd||'')),
+    unpaid: active.filter(c=>infos.get(c.id).owed>0).sort((a,b)=> infos.get(b.id).owed - infos.get(a.id).owed),
   };
-  $('tAlmost').textContent = groups.almost.length; $('tAway').textContent = groups.away.length; $('tEnded').textContent = groups.ended.length;
-  $('nAttn').textContent = new Set([...groups.almost, ...groups.away, ...groups.ended].map(c=>c.id)).size;
+  $('tAlmost').textContent = groups.almost.length; $('tAway').textContent = groups.away.length; $('tEnded').textContent = groups.ended.length; $('tUnpaid').textContent = groups.unpaid.length;
+  $('nAttn').textContent = new Set([...groups.almost, ...groups.away, ...groups.ended, ...groups.unpaid].map(c=>c.id)).size;
   document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t.dataset.tab===attnTab));
   const g = groups[attnTab];
   $('attnList').innerHTML = g.length ? g.map(c=>{
@@ -424,14 +482,16 @@ function render(){
       ? `${i.left} left${i.ends ? ' · ends '+nice(i.ends) : ''}${i.current ? ' · '+esc(pkgName(i.current.p)) : ''}`
       : attnTab==='away'
       ? ((i.lastVisit && (!i.started || i.lastVisit >= i.started)) ? `${i.daysAway} days since last visit · ${nice(i.lastVisit)}` : `No visit since the package started ${i.daysAway} days ago`)
+      : attnTab==='unpaid'
+      ? `${egp(i.owed)} EGP owed · ${i.unpaid.map(x=>esc(pkgName(x.p))).join(', ')}`
       : `${i.latest ? esc(pkgName(i.latest.p))+' · ' : ''}ended ${nice(i.lastEnd)}`;
     return `<div class="item"><div class="who"><div class="name">${esc(c.full_name)}</div>
       <div class="meta">${c.member_no?'<span class="id">#'+c.member_no+'</span> · ':''}${detail}</div></div>
       <div class="actions">
         <a class="btn btn-sm btn-wa" href="${waLink(c, attnTab, i)}" target="_blank" rel="noopener">WhatsApp</a>
-        <button class="btn btn-sm btn-ghost" onclick="openPkg('${c.id}')">+ Package</button>
+        ${attnTab==='unpaid' ? `<button class="btn btn-sm btn-ghost" onclick="openManage('${c.id}')">Add payment</button>` : `<button class="btn btn-sm btn-ghost" onclick="openPkg('${c.id}')">+ Package</button>`}
       </div></div>`;
-  }).join('') : `<div class="empty">${attnTab==='almost'?'Nobody is close to finishing.':attnTab==='away'?'Everyone with a package has trained in the last 7 days.':'No packages ended without a renewal in the last 14 days.'}</div>`;
+  }).join('') : `<div class="empty">${attnTab==='almost'?'Nobody is close to finishing.':attnTab==='away'?'Everyone with a package has trained in the last 7 days.':attnTab==='unpaid'?'Every package is paid.':'No packages ended without a renewal in the last 14 days.'}</div>`;
 
   // pending approvals
   const pending = clients.filter(c=>c.status==='pending');
@@ -461,6 +521,7 @@ function render(){
     const i = infos.get(c.id);
     const chips = [
       i.debt ? `<span class="chip warn">${i.debt} owed</span>` : '',
+      i.owed ? `<span class="chip warn">${egp(i.owed)} EGP not paid</span>` : '',
       i.almost ? `<span class="chip gold">almost finishing</span>` : '',
       i.away ? `<span class="chip">${i.daysAway}d away</span>` : '',
       i.ended ? `<span class="chip">ended ${nice(i.lastEnd)}</span>` : '',
@@ -530,16 +591,19 @@ function currentName(){
 }
 function summary(){
   const s = parseInt($('pSessions').value)||0, pr = parseFloat($('pPrice').value)||0;
-  $('pSummary').textContent = s ? `${currentName()} · ${s} session${s>1?'s':''} · ${pr.toLocaleString('en')} EGP · ends ${$('pExpiry').value?nice($('pExpiry').value):'—'}` : '';
+  const part = $('pMethod').value==='part', paidNow = Math.min(pr, parseFloat($('pPartAmt').value)||0);
+  $('pSummary').textContent = s ? `${currentName()} · ${s} session${s>1?'s':''} · ${pr.toLocaleString('en')} EGP · ends ${$('pExpiry').value?nice($('pExpiry').value):'—'}${part ? ' · '+egp(pr-paidNow)+' EGP left to pay' : ''}` : '';
 }
 $('pTier').onchange = fillPresets; $('pPreset').onchange = applyPreset; $('pDuo').onchange = applyPreset;
+$('pMethod').onchange = ()=>{ const part = $('pMethod').value==='part'; show($('pPartWrap'), part); show($('pPartMWrap'), part); if (part && !$('pPartAmt').value) $('pPartAmt').value = Math.round((parseFloat($('pPrice').value)||0)/2); summary(); };
+$('pPartAmt').oninput = summary;
 ['pSessions','pPrice','pExpiry'].forEach(id=> $(id).oninput = summary);
 
 function openPkg(clientId){
   pkgClientId = clientId;
   const c = clients.find(x=>x.id===clientId);
   $('pkgTitle').textContent = 'New package' + (c ? ' · ' + (c.full_name||'').split(' ')[0] : '');
-  $('pkgErr').textContent=''; $('pDuo').checked = false;
+  $('pkgErr').textContent=''; $('pDuo').checked = false; $('pMethod').value='cash'; $('pPartAmt').value=''; show($('pPartWrap'), false); show($('pPartMWrap'), false);
   const latest = c ? infoFor(c).latest : null;
   if (latest && latest.p.tier && PRESETS[latest.p.tier]) $('pTier').value = latest.p.tier;   // start from what they had
   fillPresets();
@@ -559,8 +623,9 @@ $('btnSavePkg').onclick = async ()=>{
   }
   if (res.error){ $('pkgErr').textContent='Could not save the package.'; return; }
   const pkg = res.data, method = $('pMethod').value;
-  if (method!=='unpaid' && price>0){
-    await db.from('kraft_payments').insert({ client_id:pkgClientId, package_id:pkg.id, amount_egp:price, method });
+  const amount = method==='part' ? Math.min(price, parseFloat($('pPartAmt').value)||0) : method==='unpaid' ? 0 : price;
+  if (amount>0){
+    await db.from(T_PAY).insert({ client_id:pkgClientId, package_id:pkg.id, amount_egp:amount, method: method==='part' ? $('pPartMethod').value : method, paid_at: payStamp(todayStr()) });
   }
   const debtRows = attendance.filter(a=>a.client_id===pkgClientId && a.is_debt);
   if (debtRows.length){
@@ -601,27 +666,91 @@ async function removeClient(id){
 }
 function openManage(clientId){
   const c = clients.find(x=>x.id===clientId);
+  manageId = clientId;
   $('manageTitle').textContent = c ? c.full_name : 'Packages';
   $('manageSub').textContent = c && c.member_no ? 'Member #' + c.member_no + ' · ' + c.phone : (c?c.phone:'');
   const today = todayStr();
   const pk = c ? infoFor(c).pk : [];
-  $('manageList').innerHTML = pk.length ? pk.map(x=>{
-    const state = !x.inDate ? 'ended' : x.rem===0 ? 'used up' : 'active';
-    return `<div class="item" style="padding:12px 2px;flex-direction:row;align-items:center">
-      <div class="who"><div class="name" style="font-size:1rem">${esc(pkgName(x.p))}</div>
-        <div class="meta">${x.used}/${x.p.sessions_total} used · ${state}${x.p.price_egp>0?' · '+Number(x.p.price_egp).toLocaleString('en')+' EGP':''}</div>
-        <div class="meta">${x.p.start_date?nice(String(x.p.start_date).slice(0,10)):''}${x.end?' → '+nice(x.end):''}</div></div>
-      <button class="btn btn-sm btn-ghost" onclick="deletePackage('${x.p.id}', ${x.used})">Delete</button></div>`;
-  }).join('') : '<p class="muted">No packages yet.</p>';
-  dlgManage.showModal();
+  $('manageList').innerHTML = pk.length ? pk.map(pkgCard).join('') : '<p class="muted">No packages yet.</p>';
+  if (!dlgManage.open) dlgManage.showModal();
 }
+/* ---------- packages: payments (split or full) and editing ---------- */
+function pkgCard(x){
+  const price = Number(x.p.price_egp||0);
+  const state = !x.inDate ? 'ended' : x.rem===0 ? 'used up' : 'active';
+  const pays = payments.filter(y=>y.package_id===x.p.id).sort((a,b)=> String(a.paid_at).localeCompare(String(b.paid_at)));
+  const money = price>0
+    ? (x.owed>0 ? `Paid ${egp(x.paid)} of ${egp(price)} · <span class="owed">${egp(x.owed)} EGP left</span>` : `<span class="paidok">Paid in full · ${egp(price)} EGP</span>`)
+    : 'No price set';
+  return `<div class="item" style="padding:12px 2px;flex-direction:column;align-items:stretch;gap:2px">
+    <div class="who"><div class="name" style="font-size:1rem">${esc(pkgName(x.p))}</div>
+      <div class="meta">${x.used}/${x.p.sessions_total} used · ${state} · ${x.p.start_date?nice(String(x.p.start_date).slice(0,10)):''}${x.end?' → '+nice(x.end):''}</div>
+      <div class="meta">${money}</div>
+      ${pays.length?`<div class="pays">${pays.map(y=>`<div class="pay"><b>${egp(y.amount_egp)} EGP</b> · ${y.method==='instapay'?'InstaPay':'Cash'} · ${nice(payDay(y))}<button title="Remove this payment" onclick="removePayment('${y.id}')">✕</button></div>`).join('')}</div>`:''}</div>
+    <div class="row-btns">
+      ${x.owed>0?`<button class="btn btn-sm" onclick="openPay('${x.p.id}')">Add payment</button>`:''}
+      <button class="btn btn-sm btn-ghost" onclick="openEditPkg('${x.p.id}')">Edit package</button>
+      <button class="btn btn-sm btn-ghost" onclick="deletePackage('${x.p.id}', ${x.used})">Delete</button></div></div>`;
+}
+let payPkgId = null, epPkgId = null;
+function openPay(pkgId){
+  const p = packages.find(x=>x.id===pkgId); if (!p) return;
+  payPkgId = pkgId;
+  const owed = Math.max(0, Number(p.price_egp||0) - paidOf(pkgId));
+  $('payTitle').textContent = 'Add payment · ' + pkgName(p);
+  $('paySub').textContent = owed ? `${egp(owed)} EGP left to pay. Enter less for a split payment.` : 'This package is fully paid.';
+  $('payAmt').value = owed || ''; $('payMethod').value = 'cash'; $('payDate').value = todayStr(); $('payDate').max = todayStr(); $('payErr').textContent = '';
+  dlgPay.showModal();
+}
+$('btnSavePay').onclick = async ()=>{
+  const p = packages.find(x=>x.id===payPkgId); if (!p) return;
+  const amt = parseFloat($('payAmt').value)||0, d = $('payDate').value || todayStr();
+  if (amt<=0){ $('payErr').textContent = 'Enter the amount paid.'; return; }
+  const owed = Math.max(0, Number(p.price_egp||0) - paidOf(payPkgId));
+  if (amt>owed && !confirm(`That is more than the ${egp(owed)} EGP left on this package. Save anyway?`)) return;
+  $('btnSavePay').disabled = true;
+  const { error } = await db.from(T_PAY).insert({ client_id:p.client_id, package_id:p.id, amount_egp:amt, method:$('payMethod').value, paid_at: payStamp(d) });
+  $('btnSavePay').disabled = false;
+  if (error){ $('payErr').textContent = 'Could not save: ' + error.message; return; }
+  dlgPay.close(); await loadAll(); openManage(p.client_id);
+};
+async function removePayment(id){
+  const y = payments.find(x=>x.id===id); if (!y) return;
+  if (!confirm(`Remove the ${egp(y.amount_egp)} EGP payment from ${nice(payDay(y))}?`)) return;
+  await db.from(T_PAY).delete().eq('id', id);
+  await loadAll(); openManage(y.client_id);
+}
+function openEditPkg(pkgId){
+  const p = packages.find(x=>x.id===pkgId); if (!p) return;
+  epPkgId = pkgId;
+  const used = usedOf(pkgId);
+  $('epSub').textContent = used ? `${used} session${used>1?'s':''} already used on this package.` : 'No sessions used yet.';
+  $('epName').value = pkgName(p); $('epSessions').value = p.sessions_total; $('epPrice').value = Number(p.price_egp||0);
+  $('epStart').value = String(p.start_date||'').slice(0,10); $('epEnd').value = endOf(p) || ''; $('epErr').textContent = '';
+  dlgEditPkg.showModal();
+}
+$('btnSaveEp').onclick = async ()=>{
+  const p = packages.find(x=>x.id===epPkgId); if (!p) return;
+  const sessions = parseInt($('epSessions').value), price = parseFloat($('epPrice').value)||0, used = usedOf(epPkgId);
+  if (!sessions || sessions<1){ $('epErr').textContent = 'Enter the number of sessions.'; return; }
+  if (sessions < used){ $('epErr').textContent = `${used} sessions are already used. Sessions can’t be lower than that.`; return; }
+  if ($('epStart').value && $('epEnd').value && $('epEnd').value < $('epStart').value){ $('epErr').textContent = 'The end date is before the start date.'; return; }
+  const row = { package_name: $('epName').value.trim() || pkgName(p), sessions_total: sessions, price_egp: price, expiry_date: $('epEnd').value || null };
+  if ($('epStart').value) row.start_date = $('epStart').value;
+  $('btnSaveEp').disabled = true;
+  const { error } = await db.from(T_PKG).update(row).eq('id', epPkgId);
+  $('btnSaveEp').disabled = false;
+  if (error){ $('epErr').textContent = 'Could not save: ' + error.message; return; }
+  dlgEditPkg.close(); await loadAll(); openManage(p.client_id);
+};
 async function deletePackage(id, usedCount){
+  const p = packages.find(x=>x.id===id);
   const warn = usedCount>0
-    ? 'This package has ' + usedCount + ' logged sessions. Deleting it keeps the attendance records but detaches them. Delete package?'
+    ? 'This package has ' + usedCount + ' logged sessions. Deleting it keeps the session records but detaches them. Delete package?'
     : 'Delete this package?';
   if (!confirm(warn)) return;
-  await db.from('kraft_packages').delete().eq('id', id);
-  await loadAll(); dlgManage.close();
+  await db.from(T_PKG).delete().eq('id', id);
+  await loadAll(); if (p) openManage(p.client_id); else dlgManage.close();
 }
 async function deleteAttendance(id){
   const a = attendance.find(x=>x.id===id), c = a ? clients.find(x=>x.id===a.client_id) : null;
